@@ -359,15 +359,15 @@ syncEdition();renderReader(1);renderRomane(1);loadAudio();applySettings();route(
 <button type="button" class="ri-flight-close" id="ri-flight-close">× Phand</button>
 <h2 id="ri-flight-title">✈ Čitin o kurani ko avioni</h2>
 <section class="ri-flight-section">
-
-<p>Da bi saj koristine o sunibe ko avioni.</p>
-<p>A ako mange samo te citine.</p>
-<p>nemora te birine o Audio</p>
 <div class="ri-flight-grid"><label><strong>Yasir</strong><select id="ri-flight-reciter"><option value="dosari">Yasir</option></select></label></div>
-<p id="ri-flight-reciter-size" aria-live="polite">Yasir — 114 sura.</p>
-<div class="ri-flight-row"><button type="button" id="ri-flight-check-size">Provjeri veličinu</button><button type="button" id="ri-flight-all-save">Taknin te lje o audio</button><button type="button" id="ri-flight-stop" disabled>Prekini preuzimanje</button></div>
-<p>aičer te pherđon 114 sure</p><p>I pipin phand i tu isi tut o audio</p>
-<p id="ri-flight-audio-count" aria-live="polite"></p>
+<div class="ri-flight-row"><button type="button" id="ri-flight-all-save">Taknin te lje o audio</button></div>
+<p>aičer te pherđon 114 sure</p>
+<p>I pipin phand i tu isi tut o audio</p>
+<p id="ri-flight-audio-count" aria-live="polite">0/114 pamtime Sure · 0.0 MB</p>
+<p>I tu šaj  ko avioni bizo internet te koristine celo aplikacija</p>
+<p>Akava i čerdo e pralenge penjenge nijetimo ked đana ko Hadž ili Umra</p>
+<p>O Allah  kabuli Tumaro Nijeti</p>
+<p>Seljam Alejkum</p>
 <div id="ri-flight-audio-saved" class="ri-flight-list"></div>
 </section>
 
@@ -397,7 +397,7 @@ async function saved(rec,n){return query('readonly',s=>s.get(key(rec,n)));}
 window.riFlightGetSavedAudio=saved;
 async function savedAll(){return(await query('readonly',s=>s.getAll())).filter(x=>x.blob instanceof Blob&&x.id);}
 function formatSize(bytes){return bytes>=1073741824?(bytes/1073741824).toFixed(2)+' GB':(bytes/1048576).toFixed(1)+' MB';}
-function disableBusy(b){run=b;recSelect.disabled=b;$('ri-flight-all-save').disabled=b;$('ri-flight-check-size').disabled=b;$('ri-flight-stop').disabled=!b;}
+function disableBusy(b){run=b;recSelect.disabled=true;$('ri-flight-all-save').disabled=b;}
 async function updateView(){
  const parent=$('ri-flight-audio-saved');parent.replaceChildren();
  try{
@@ -413,14 +413,14 @@ async function updateView(){
    {const del=document.createElement('button');del.type='button';del.textContent='Kosljen';del.onclick=async()=>{
     if(!confirm('Kosljen — obrisati preuzete snimke i osloboditi prostor na telefonu?'))return;
     for(const item of items)await query('readwrite',s=>s.delete(item.id));
-    await updateView();status('Sačuvani snimci su obrisani.');
+    await updateView();status('Koslje o ajetja');
    };row.append(del);}
    parent.append(row);
   }
   const selected=groups.get(rec)||[];
   const total=selected.reduce((sum,x)=>sum+x.blob.size,0);
-  $('ri-flight-audio-count').textContent=rec?(selected.length+'/114 sačuvanih sura · '+formatSize(total)):'Izaberi učača.';
-  if(!groups.size)parent.textContent='Još nema sačuvanih učača.';
+  $('ri-flight-audio-count').textContent=rec?(selected.length+'/114 pamtime Sure · '+formatSize(total)):'0/114 pamtime Sure · 0.0 MB';
+  if(!groups.size)parent.textContent='Panda nane tut pamtimo';
  }catch(e){$('ri-flight-audio-count').textContent='Offline pohrana nije dostupna: '+e.message;}
 }
 async function audioUrl(rec,n){const resolve=window.riFlightResolveSource;if(typeof resolve!=='function')throw Error('Audio izvori nisu dostupni');const url=await resolve(rec,n);if(!url||!/^https:\/\//.test(url))throw Error('Nema snimka za suru '+n);return url;}
@@ -435,23 +435,6 @@ async function saveOne(rec,n){if(await saved(rec,n))return 'already';
  await query('readwrite',s=>s.put({id:key(rec,n),blob:blob.type?blob:new Blob([blob],{type:'audio/mpeg'})}));
  return 'saved';
 }
-recSelect.addEventListener('change',()=>{status('');$('ri-flight-reciter-size').textContent='Preuzima se cijeli Kur’an — 114 sura. Klikni „Provjeri veličinu“ za procjenu kad je server omogućava.';updateView();});
-$('ri-flight-check-size').onclick=async()=>{
- const rec=recSelect.value;if(!rec){status('Prvo birin učača.');return;}
- disableBusy(true);stop=false;let known=0,bytes=0;const count=114;
- $('ri-flight-reciter-size').textContent='Provjeravam veličinu snimaka…';
- for(let n=1;n<=count;n++){
-  if(stop)break;
-  try{const old=await saved(rec,n);if(old?.blob){bytes+=old.blob.size;known++;continue;}
-   const url=await audioUrl(rec,n);const head=await fetch(url,{method:'HEAD',mode:'cors'});
-   const len=Number(head.headers.get('content-length'));if(head.ok&&len>0){bytes+=len;known++;}
-  }catch{}
-  if(n%12===0)$('ri-flight-reciter-size').textContent='Provjereno '+n+'/114 · dostupne veličine '+known;
- }
- $('ri-flight-reciter-size').textContent=known===114?'Ukupna veličina svih 114 sura: '+formatSize(bytes):known?'Provjereno '+known+'/114 veličina ('+formatSize(bytes)+'). Ukupna veličina nije dostupna prije preuzimanja.':'Server ne dozvoljava provjeru veličine prije preuzimanja. Tačnu veličinu prikazat ćemo tokom spremanja.';
- disableBusy(false);stop=false;
-};
-$('ri-flight-stop').onclick=()=>{stop=true;status('Zaustavljam nakon trenutne sure…');};
 $('ri-flight-all-save').onclick=async()=>{
  const rec=recSelect.value;if(!rec){status('Prvo Birin učača.');return;}
  disableBusy(true);stop=false;
