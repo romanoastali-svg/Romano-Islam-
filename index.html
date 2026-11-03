@@ -359,17 +359,18 @@ syncEdition();renderReader(1);renderRomane(1);loadAudio();applySettings();route(
 <button type="button" class="ri-flight-close" id="ri-flight-close">× Phand</button>
 <h2 id="ri-flight-title">✈ Čitin o kurani ko avioni</h2>
 <section class="ri-flight-section">
-<p>Birin o audio kastar mange te šune.</p>
+
 <p>Da bi saj koristine o sunibe ko avioni.</p>
 <p>A ako mange samo te citine.</p>
 <p>nemora te birine o Audio</p>
-<div class="ri-flight-grid"><label><strong>Birin</strong><select id="ri-flight-reciter"><option value="">Birin</option></select></label></div>
-<p id="ri-flight-reciter-size" aria-live="polite">Izaberi učača. Preuzima se kompletan Kur’an — 114 sura.</p>
-<div class="ri-flight-row"><button type="button" id="ri-flight-check-size">Provjeri veličinu</button><button type="button" id="ri-flight-all-save">Sačuvaj učača — 114 sura</button><button type="button" id="ri-flight-stop" disabled>Prekini preuzimanje</button></div>
+<div class="ri-flight-grid"><label><strong>Yasir</strong><select id="ri-flight-reciter"><option value="dosari">Yasir</option></select></label></div>
+<p id="ri-flight-reciter-size" aria-live="polite">Yasir — 114 sura.</p>
+<div class="ri-flight-row"><button type="button" id="ri-flight-check-size">Provjeri veličinu</button><button type="button" id="ri-flight-all-save">Taknin te lje o audio</button><button type="button" id="ri-flight-stop" disabled>Prekini preuzimanje</button></div>
+<p>aičer te pherđon 114 sure</p><p>I pipin phand i tu isi tut o audio</p>
 <p id="ri-flight-audio-count" aria-live="polite"></p>
 <div id="ri-flight-audio-saved" class="ri-flight-list"></div>
 </section>
-<p class="ri-flight-muted">Prije putovanja preuzmi učenja putem Wi-Fi mreže. Sačekaj potvrdu da je sačuvano svih 114 sura i provjeri u avionskom režimu. iPhone može obrisati lokalne podatke kada ponestane prostora. Ako audio-server ne dozvoljava preuzimanje, aplikacija će prijaviti grešku.</p>
+
 <p id="ri-flight-status" role="status" aria-live="polite"></p>
 </div></div>
 <script id="ri-flight-script">
@@ -380,10 +381,8 @@ let database,run=false,stop=false;
 const status=t=>{$('ri-flight-status').textContent=t;};
 const recSelect=$('ri-flight-reciter');
 const sourceSelect=$('audioReciter');
-for(const option of sourceSelect.options){
- if(option.disabled)continue;
- recSelect.add(new Option(option.text,option.value));
-}
+recSelect.value='dosari';
+recSelect.disabled=true;
 function openDb(){return database||(database=new Promise((resolve,reject)=>{
  const r=indexedDB.open(DB,1);
  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE,{keyPath:'id'});};
@@ -411,8 +410,8 @@ async function updateView(){
    const row=document.createElement('div');row.className='ri-flight-item';row.style.flexWrap='wrap';
    const label=document.createElement('span');label.style.flex='1';label.textContent=(opt?.text||r)+' — '+count+'/114 sura · '+formatSize(size);
    row.append(label);
-   if(r===rec){const del=document.createElement('button');del.type='button';del.textContent='Obriši učača';del.onclick=async()=>{
-    if(!confirm('Obrisati preuzete snimke ovog učača?'))return;
+   {const del=document.createElement('button');del.type='button';del.textContent='Kosljen';del.onclick=async()=>{
+    if(!confirm('Kosljen — obrisati preuzete snimke i osloboditi prostor na telefonu?'))return;
     for(const item of items)await query('readwrite',s=>s.delete(item.id));
     await updateView();status('Sačuvani snimci su obrisani.');
    };row.append(del);}
