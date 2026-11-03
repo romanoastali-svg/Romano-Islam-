@@ -230,7 +230,28 @@ function minshawiSegment(a,resume=false,keepRepeat=false){const n=Math.max(1,Mat
 function minshawiSurah(){++loadingToken;audioSura=Number($('audioSurah').value);$('audioJump').max=String(count(audioSura));$('audioAyah').replaceChildren();for(let a=1;a<=count(audioSura);a++)$('audioAyah').add(new Option('Ajet '+a,a));currentAyah=1;renderAudio();minshawiSegment(1);}
 function minshawiNext(){if(repeatIndex<Number(settings.repeat)){repeatIndex++;minshawiSegment(currentAyah,true,true);}else if(currentAyah<count(audioSura)){minshawiSegment(currentAyah+1,true);}else if(settings.auto&&audioSura<114){$('audioSurah').value=String(audioSura+1);minshawiSurah();play();}else{$('audioStatus').textContent='O snimak tano završimo.';$('playAudio').textContent='▶ Šun';}}
 
-async function loadAudio(){if(minshawiSegments()){minshawiSurah();return;}const token=++loadingToken;playIntent=false;audio.pause();audio.removeAttribute('src');audio.load();audioSources=[];audioSourceIndex=0;$('audioStatus').textContent='Učitavam izabranog recitatora…';audioSura=Number($('audioSurah').value);currentAyah=1;repeatIndex=1;const romanoChoice=$('audioReciter').value;let romanoRecording=null;if(romanoNewReciters[romanoChoice]){try{romanoRecording=await romanoFindRecording(romanoChoice,audioSura)}catch(err){if(token===loadingToken)$('audioStatus').textContent='O audio akana nane dostupno: '+err.message;return}if(token!==loadingToken)return;}audio.src=romanoRecording?romanoRecording.url:$('audioReciter').value==='jazairi'?'https://cdn.mp3quran.net/audio/yassen-jazairi/r1/'+String(audioSura).padStart(3,'0')+'.mp3':$('audioReciter').value==='maher'?'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/'+String(audioSura).padStart(3,'0')+'.mp3':$('audioReciter').value==='fatih'?D.fatihSources[String(audioSura)].primary:$('audioReciter').value==='kurdi'?'https://cdn.mp3quran.net/audio/raad-kurdi/r1/'+String(audioSura).padStart(3,'0')+'.mp3':D.audio[String(audioSura)];audioSources=$('audioReciter').value==='fatih'?[D.fatihSources[String(audioSura)].primary,D.fatihSources[String(audioSura)].fallback]:[audio.src];audioSourceIndex=0;audio.load();audio.setAttribute('aria-label','O čitibe e Kur’anesoro '+reciterName());$('audioJump').max=String(count(audioSura));$('audioAyah').replaceChildren();for(let a=1;a<=count(audioSura);a++)$('audioAyah').add(new Option('Ajet '+a,a));$('audioAyah').value='1';updateReciterNote();$('audioStatus').textContent='Birin Šun · '+reciterName()+'.';renderAudio();$('audioVerses').scrollTop=0;if(romanoRecording){try{await romanoFetchTiming(romanoRecording.read,audioSura,romanoChoice,token)}catch(err){if(token===loadingToken)$('audioStatus').textContent='O snimak isi, ama precizno vreme e ajetjengoro akana nane dostupno.'}}if(['kurdi','maher'].includes($('audioReciter').value)&&!timingCache() [audioSura]){const sura=audioSura,rec=$('audioReciter').value,cache=timingCache(),read=rec==='maher'?133:221;try{const response=await fetch('https://www.mp3quran.net/api/v3/ayat_timing?surah='+sura+'&read='+read);if(!response.ok)throw Error('Timing unavailable');const rows=await response.json(),map={};for(const row of rows){const a=Number(row.ayah);if(a>=1&&a<=count(sura)&&row.end_time>row.start_time){if(map[a])map[a][1]=Math.max(map[a][1],Number(row.end_time));else map[a]=[Number(row.start_time),Number(row.end_time)]}}if(Object.keys(map).length!==count(sura))throw Error('Incomplete timings');cache[sura]=map;if(token===loadingToken)syncText(false)}catch{if(token===loadingToken)$('audioStatus').textContent='O snimak isi; o automatsko pratiba e ajetjengoro akana nane dostupno.'}}if(token!==loadingToken)return;if(!arabic(audioSura,count(audioSura))){try{await ensureArabic(audioSura);if(token===loadingToken)renderAudio()}catch{if(token===loadingToken){$('audioStatus').textContent='O audio tano spremno; o arapsko tekst nane dostupno bi internet.';$('audioVerses').querySelectorAll('.arabic').forEach(p=>{if(p.textContent.includes('O arapsko tekst učitinela pe'))p.textContent='O arapsko tekst akana nane dostupno.'})}}}}
+async function loadAudio(){
+ if(window.riFlightGetSavedAudio){
+  const selectedRec=$('audioReciter').value, selectedSurah=Number($('audioSurah').value);
+  const loadMark=++loadingToken;
+  let saved=null;
+  try{saved=await window.riFlightGetSavedAudio(selectedRec,selectedSurah);}catch(e){}
+  if(loadMark!==loadingToken)return;
+  if(saved&&saved.blob instanceof Blob){
+   playIntent=false;audio.pause();if(window.riFlightPreviousBlobURL){URL.revokeObjectURL(window.riFlightPreviousBlobURL);}
+   const url=URL.createObjectURL(saved.blob);window.riFlightPreviousBlobURL=url;
+   audioSura=selectedSurah;currentAyah=1;repeatIndex=1;
+   audio.src=url;audioSources=[url];audioSourceIndex=0;audio.load();
+   audio.setAttribute('aria-label','O čitibe e Kur’anesoro '+reciterName());
+   $('audioJump').max=String(count(audioSura));$('audioAyah').replaceChildren();
+   for(let a=1;a<=count(audioSura);a++)$('audioAyah').add(new Option('Ajet '+a,a));
+   $('audioAyah').value='1';updateReciterNote();renderAudio();$('audioVerses').scrollTop=0;
+   $('audioStatus').textContent='Sačuvani audio — '+reciterName()+' · sura '+audioSura+'.';
+   return;
+  }
+  if(!navigator.onLine){$('audioStatus').textContent='Ova sura od ovog učača nije sačuvana za offline slušanje.';}
+ }
+ if(minshawiSegments()){minshawiSurah();return;}const token=++loadingToken;playIntent=false;audio.pause();audio.removeAttribute('src');audio.load();audioSources=[];audioSourceIndex=0;$('audioStatus').textContent='Učitavam izabranog recitatora…';audioSura=Number($('audioSurah').value);currentAyah=1;repeatIndex=1;const romanoChoice=$('audioReciter').value;let romanoRecording=null;if(romanoNewReciters[romanoChoice]){try{romanoRecording=await romanoFindRecording(romanoChoice,audioSura)}catch(err){if(token===loadingToken)$('audioStatus').textContent='O audio akana nane dostupno: '+err.message;return}if(token!==loadingToken)return;}audio.src=romanoRecording?romanoRecording.url:$('audioReciter').value==='jazairi'?'https://cdn.mp3quran.net/audio/yassen-jazairi/r1/'+String(audioSura).padStart(3,'0')+'.mp3':$('audioReciter').value==='maher'?'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/'+String(audioSura).padStart(3,'0')+'.mp3':$('audioReciter').value==='fatih'?D.fatihSources[String(audioSura)].primary:$('audioReciter').value==='kurdi'?'https://cdn.mp3quran.net/audio/raad-kurdi/r1/'+String(audioSura).padStart(3,'0')+'.mp3':D.audio[String(audioSura)];audioSources=$('audioReciter').value==='fatih'?[D.fatihSources[String(audioSura)].primary,D.fatihSources[String(audioSura)].fallback]:[audio.src];audioSourceIndex=0;audio.load();audio.setAttribute('aria-label','O čitibe e Kur’anesoro '+reciterName());$('audioJump').max=String(count(audioSura));$('audioAyah').replaceChildren();for(let a=1;a<=count(audioSura);a++)$('audioAyah').add(new Option('Ajet '+a,a));$('audioAyah').value='1';updateReciterNote();$('audioStatus').textContent='Birin Šun · '+reciterName()+'.';renderAudio();$('audioVerses').scrollTop=0;if(romanoRecording){try{await romanoFetchTiming(romanoRecording.read,audioSura,romanoChoice,token)}catch(err){if(token===loadingToken)$('audioStatus').textContent='O snimak isi, ama precizno vreme e ajetjengoro akana nane dostupno.'}}if(['kurdi','maher'].includes($('audioReciter').value)&&!timingCache() [audioSura]){const sura=audioSura,rec=$('audioReciter').value,cache=timingCache(),read=rec==='maher'?133:221;try{const response=await fetch('https://www.mp3quran.net/api/v3/ayat_timing?surah='+sura+'&read='+read);if(!response.ok)throw Error('Timing unavailable');const rows=await response.json(),map={};for(const row of rows){const a=Number(row.ayah);if(a>=1&&a<=count(sura)&&row.end_time>row.start_time){if(map[a])map[a][1]=Math.max(map[a][1],Number(row.end_time));else map[a]=[Number(row.start_time),Number(row.end_time)]}}if(Object.keys(map).length!==count(sura))throw Error('Incomplete timings');cache[sura]=map;if(token===loadingToken)syncText(false)}catch{if(token===loadingToken)$('audioStatus').textContent='O snimak isi; o automatsko pratiba e ajetjengoro akana nane dostupno.'}}if(token!==loadingToken)return;if(!arabic(audioSura,count(audioSura))){try{await ensureArabic(audioSura);if(token===loadingToken)renderAudio()}catch{if(token===loadingToken){$('audioStatus').textContent='O audio tano spremno; o arapsko tekst nane dostupno bi internet.';$('audioVerses').querySelectorAll('.arabic').forEach(p=>{if(p.textContent.includes('O arapsko tekst učitinela pe'))p.textContent='O arapsko tekst akana nane dostupno.'})}}}}
 function play(){playIntent=true;const token=loadingToken,source=audio.src;const promise=audio.play();if(promise)promise.catch(()=>{if(token!==loadingToken||source!==audio.src)return;if(audio.error){handleAudioFailure();return;}playIntent=false;$('audioStatus').textContent='O snimak našti te pustine. Proverin o internet hem probin palem.';toast('O snimak našti te pustine. Proverin o internet.')})}
 $('closeAudioOptions').addEventListener('click',()=>{$('audioOptions').open=false;$('audioOptions').querySelector('summary').focus()});
 $('playAudio').addEventListener('click',()=>{$('audioOptions').open=false;audio.paused?play():(playIntent=false,audio.pause())});$('audioSurah').addEventListener('change',loadAudio);$('audioReciter').addEventListener('change',loadAudio);
@@ -322,54 +343,138 @@ function closeTextFocus(){if($('bosanskiFocus').classList.contains('web-text-foc
 textFocusButton.onclick=async()=>{const focus=$('bosanskiFocus'),resume=!audio.paused;if(focus.classList.contains('web-text-focus')){closeTextFocus();if(document.fullscreenElement===focus)await document.exitFullscreen();}else{textFocusPreviousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';focus.classList.add('web-text-focus');textFocusButton.textContent='⤢';textFocusButton.setAttribute('aria-pressed','true');if(focus.requestFullscreen){try{await focus.requestFullscreen()}catch{}}}if(resume&&audio.paused)play();};
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)closeTextFocus()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTextFocus()});window.addEventListener('hashchange',()=>{closeTextFocus();if(document.fullscreenElement===$('bosanskiFocus'))document.exitFullscreen().catch(()=>{});});
 
+window.riFlightResolveSource=async function(rec,n){
+ const nn=String(n).padStart(3,'0');
+ if(romanoNewReciters[rec])return (await romanoFindRecording(rec,n)).url;
+ if(rec==='dosari')return D.audio[String(n)];
+ if(rec==='jazairi')return 'https://cdn.mp3quran.net/audio/yassen-jazairi/r1/'+nn+'.mp3';
+ if(rec==='maher')return 'https://cdn.mp3quran.net/audio/maher-muaiqly/r3/'+nn+'.mp3';
+ if(rec==='fatih')return D.fatihSources[String(n)]?.primary;
+ if(rec==='kurdi')return 'https://cdn.mp3quran.net/audio/raad-kurdi/r1/'+nn+'.mp3';
+ throw Error('Za ovog učača nema dostupne adrese snimka.');
+};
 syncEdition();renderReader(1);renderRomane(1);loadAudio();applySettings();route();window.romanoApp={version:'2026-10-25',showReader:renderReader,getAudioState:()=>({sura:audioSura,ayah:currentAyah,paused:audio.paused})};
 })();
 </script><div id="ri-flight-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="ri-flight-title"><div id="ri-flight-box">
 <button type="button" class="ri-flight-close" id="ri-flight-close">× Phand</button>
-<h2 id="ri-flight-title">✈ Kur’an Offline ko Avioni</h2>
+<h2 id="ri-flight-title">✈ Čitin o kurani ko avioni</h2>
 <section class="ri-flight-section">
- <h3>📖 Čitin o Kur’ani — offline</h3>
- <p>Sve sure i dostupni arapski, romski i bosanski tekstovi nalaze se u aplikaciji. <strong>Ne moraš birati niti preuzimati sure za čitanje.</strong></p>
- <p id="ri-flight-shell-state" role="status">Provjeravam da li je aplikacija sačuvana za otvaranje bez interneta…</p>
- <button type="button" id="ri-flight-shell-save">Sačuvaj cijelu aplikaciju za čitanje</button>
+<p>Birin o audio kastar mange te šune.</p>
+<p>Da bi saj koristine o sunibe ko avioni.</p>
+<p>A ako mange samo te citine.</p>
+<p>nemora te birine o Audio</p>
+<div class="ri-flight-grid"><label><strong>Birin</strong><select id="ri-flight-reciter"><option value="">Birin</option></select></label></div>
+<p id="ri-flight-reciter-size" aria-live="polite">Izaberi učača. Preuzima se kompletan Kur’an — 114 sura.</p>
+<div class="ri-flight-row"><button type="button" id="ri-flight-check-size">Provjeri veličinu</button><button type="button" id="ri-flight-all-save">Sačuvaj učača — 114 sura</button><button type="button" id="ri-flight-stop" disabled>Prekini preuzimanje</button></div>
+<p id="ri-flight-audio-count" aria-live="polite"></p>
+<div id="ri-flight-audio-saved" class="ri-flight-list"></div>
 </section>
-<section class="ri-flight-section">
- <h3>🎧 Šun o Kur’ani — Yasser Al-Dosari</h3>
- <p><strong>Birin tuke o sure save ka šune ko avioni</strong></p>
- <p>Za offline slušanje preuzimamo <strong>samo Yassera Al-Dosarija</strong>. Svi ostali učači ostaju u postojećem meniju i rade putem interneta.</p>
- <div class="ri-flight-grid"><label>Sura<select id="ri-flight-audio-surah"></select></label></div>
- <div class="ri-flight-row" style="flex-wrap:wrap"><button type="button" id="ri-flight-one-save">Sačuvaj izabranu suru</button><button type="button" id="ri-flight-all-save">Sačuvaj svih 114 sura</button><button type="button" id="ri-flight-stop" disabled>Prekini preuzimanje</button></div>
- <p id="ri-flight-audio-count" aria-live="polite">Provjeravam sačuvana učenja…</p>
- <div class="ri-flight-list" id="ri-flight-audio-saved"></div>
- <audio id="ri-flight-playback" controls playsinline preload="none" style="width:100%"></audio>
-</section>
-<p class="ri-flight-muted">Prije putovanja sve preuzmi na Wi-Fi mreži, sačekaj potvrdu i isprobaj u avionskom režimu uz isključen Wi-Fi. iPhone može obrisati lokalne podatke ako ponestane prostora. Snimci se čuvaju samo ako server dopusti preuzimanje.</p>
+<p class="ri-flight-muted">Prije putovanja preuzmi učenja putem Wi-Fi mreže. Sačekaj potvrdu da je sačuvano svih 114 sura i provjeri u avionskom režimu. iPhone može obrisati lokalne podatke kada ponestane prostora. Ako audio-server ne dozvoljava preuzimanje, aplikacija će prijaviti grešku.</p>
 <p id="ri-flight-status" role="status" aria-live="polite"></p>
 </div></div>
 <script id="ri-flight-script">
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const D=JSON.parse($('appData').textContent),names=D.names;
 const DB='romano-islam-flight-audio-v1',STORE='recordings';
-const status=s=>{$('ri-flight-status').textContent=s;};
-let dbPromise,run=false,stop=false,objectUrl=null;
-function openDb(){return dbPromise||(dbPromise=new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE,{keyPath:'id'});};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||Error('IndexedDB nije dostupan'));}));}
-async function tx(mode,fn){const db=await openDb();return new Promise((resolve,reject)=>{const tr=db.transaction(STORE,mode);const q=fn(tr.objectStore(STORE));tr.oncomplete=()=>resolve(q.result);tr.onerror=()=>reject(tr.error||q.error);tr.onabort=()=>reject(tr.error||Error('Spremanje nije dovršeno'));});}
-const key=n=>'dosari:'+n;
-async function stored(n){return tx('readonly',s=>s.get(key(n)));}
-async function list(){return (await tx('readonly',s=>s.getAll())).filter(x=>x.id&&x.id.startsWith('dosari:')&&x.blob instanceof Blob);}
-async function refresh(){const parent=$('ri-flight-audio-saved');parent.replaceChildren();try{const all=await list();all.sort((a,b)=>Number(a.id.split(':')[1])-Number(b.id.split(':')[1]));const sz=all.reduce((n,x)=>n+x.blob.size,0);$('ri-flight-audio-count').textContent=all.length+'/114 sačuvanih sura · '+(sz/1024/1024).toFixed(1)+' MB na telefonu';if(!all.length){parent.textContent='Nijedna sura još nije preuzeta.';return;}for(const item of all){const no=Number(item.id.split(':')[1]);const row=document.createElement('div');row.className='ri-flight-item';const label=document.createElement('span');label.textContent=no+'. '+names[no-1];label.style.flex='1';const play=document.createElement('button');play.type='button';play.textContent='▶ Šun';play.onclick=()=>{const player=$('ri-flight-playback');player.pause();if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(item.blob);player.src=objectUrl;player.load();player.play().catch(()=>status('Pritisni Play za slušanje sačuvane sure.'));};const del=document.createElement('button');del.type='button';del.textContent='Obriši';del.onclick=async()=>{await tx('readwrite',s=>s.delete(item.id));await refresh();};row.append(label,play,del);parent.append(row);}}catch(e){$('ri-flight-audio-count').textContent='Ne mogu otvoriti lokalnu audio-pohranu: '+e.message;}}
-async function shellCheck(){const p=$('ri-flight-shell-state');if(!('serviceWorker'in navigator)||!('caches'in window)){p.textContent='Ovaj preglednik ne podržava potreban offline način.';return;}try{const reg=await navigator.serviceWorker.ready;const cache=await caches.open('romano-islam-flight-shell-v4');const saved=await cache.match(new URL('./index.html',reg.scope).href);p.textContent=saved?'Aplikacija je sačuvana za čitanje bez interneta.':'Aplikacija još nije potvrđena u offline pohrani. Pritisni dugme ispod.';}catch(e){p.textContent='Offline provjera nije uspjela: '+e.message;}}
-$('ri-flight-shell-save').onclick=async()=>{status('Spremam tekstove i aplikaciju…');try{if(!('serviceWorker'in navigator))throw Error('Service Worker nije dostupan');const reg=await navigator.serviceWorker.register('./offline-sw.js',{scope:'./'});await navigator.serviceWorker.ready;const c=await caches.open('romano-islam-flight-shell-v4');const u=new URL('./index.html',reg.scope).href;await c.add(new Request(u,{cache:'reload'}));status('Tekstovi i aplikacija sačuvani. Provjeri u avionskom režimu.');await shellCheck();}catch(e){status('Aplikacija NIJE potvrđena kao sačuvana: '+e.message);}};
-async function saveOne(n){if(!navigator.onLine)throw Error('Nema interneta za preuzimanje');if(await stored(n))return 'already';const u=D.audio[String(n)];if(!u||!/^https:\/\//.test(u))throw Error('Nema potvrđene audio-adrese');const resp=await fetch(u,{mode:'cors',cache:'no-store'});if(!resp.ok)throw Error('Audio server: HTTP '+resp.status);const mime=(resp.headers.get('content-type')||'').toLowerCase();if(mime&&!(/audio|mpeg|octet-stream/.test(mime)))throw Error('Server nije vratio MP3');const b=await resp.blob();if(b.size<10000)throw Error('Snimak nije ispravan');const blob=b.type?b:new Blob([b],{type:'audio/mpeg'});await tx('readwrite',s=>s.put({id:key(n),name:'Yasser Al-Dosari — '+n+'. '+names[n-1],blob}));return 'saved';}
-function busy(b){run=b;$('ri-flight-one-save').disabled=b;$('ri-flight-all-save').disabled=b;$('ri-flight-stop').disabled=!b;}
-async function prepareStorage(){if(navigator.storage?.persist)try{await navigator.storage.persist();}catch{}}
-$('ri-flight-one-save').onclick=async()=>{if(run)return;busy(true);await prepareStorage();const n=Number($('ri-flight-audio-surah').value);status('Preuzimam suru '+n+'…');try{const r=await saveOne(n);status(r==='saved'?'Sačuvana sura '+n+'. Isprobaj u avionskom režimu.':'Sura '+n+' je već sačuvana.');}catch(e){status('Sura '+n+' NIJE sačuvana: '+e.message+'. Ako server blokira CORS, ova verzija ne može preuzeti snimak.');}finally{busy(false);await refresh();}};
-$('ri-flight-stop').onclick=()=>{stop=true;status('Prekidam nakon trenutne sure…');};
-$('ri-flight-all-save').onclick=async()=>{if(run)return;busy(true);stop=false;await prepareStorage();let done=0,failed=0,skipped=0;let firstError='';for(let n=1;n<=114;n++){if(stop)break;status('Yasser Al-Dosari: provjeravam/preuzimam '+n+'/114 · uspješno '+done+' · greške '+failed);try{const r=await saveOne(n);if(r==='saved')done++;else skipped++;}catch(e){failed++;if(!firstError)firstError=e.message;if(failed>=3&&done===0){status('Preuzimanje zaustavljeno: '+firstError+'. Server možda blokira preuzimanje ili nema dovoljno prostora.');break;}}await refresh();}if(!failed&&!stop)status('Gotovo: svih 114 sura je provjereno, novih '+done+', ranije sačuvanih '+skipped+'. Isprobaj offline.');else if(stop)status('Zaustavljeno. Sačuvane sure ostaju; nastavi istim dugmetom kasnije.');else status('Sačuvano novih '+done+', ranije '+skipped+', neuspješno '+failed+'. '+firstError);busy(false);await refresh();};
-for(let n=1;n<=114;n++)$('ri-flight-audio-surah').add(new Option(n+'. '+names[n-1],n));
-$('ri-flight-menu-link').onclick=e=>{e.preventDefault();$('ri-flight-overlay').hidden=false;const menu=$('mainMenu');if(menu&&!menu.hidden)$('closeMenu')?.click();shellCheck();refresh();};
-$('ri-flight-close').onclick=()=>{$('ri-flight-overlay').hidden=true;};$('ri-flight-overlay').onclick=e=>{if(e.target===$('ri-flight-overlay'))$('ri-flight-overlay').hidden=true;};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('ri-flight-overlay').hidden)$('ri-flight-overlay').hidden=true;});
+let database,run=false,stop=false;
+const status=t=>{$('ri-flight-status').textContent=t;};
+const recSelect=$('ri-flight-reciter');
+const sourceSelect=$('audioReciter');
+for(const option of sourceSelect.options){
+ if(option.disabled)continue;
+ recSelect.add(new Option(option.text,option.value));
+}
+function openDb(){return database||(database=new Promise((resolve,reject)=>{
+ const r=indexedDB.open(DB,1);
+ r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE,{keyPath:'id'});};
+ r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||Error('Offline pohrana nije dostupna'));
+}));}
+async function query(mode,fn){const db=await openDb();return new Promise((resolve,reject)=>{
+ const tx=db.transaction(STORE,mode),req=fn(tx.objectStore(STORE));
+ tx.oncomplete=()=>resolve(req.result);tx.onerror=()=>reject(tx.error||req.error);tx.onabort=()=>reject(tx.error||Error('Spremanje nije dovršeno'));
+});}
+const key=(rec,n)=>rec+':'+n;
+async function saved(rec,n){return query('readonly',s=>s.get(key(rec,n)));}
+window.riFlightGetSavedAudio=saved;
+async function savedAll(){return(await query('readonly',s=>s.getAll())).filter(x=>x.blob instanceof Blob&&x.id);}
+function formatSize(bytes){return bytes>=1073741824?(bytes/1073741824).toFixed(2)+' GB':(bytes/1048576).toFixed(1)+' MB';}
+function disableBusy(b){run=b;recSelect.disabled=b;$('ri-flight-all-save').disabled=b;$('ri-flight-check-size').disabled=b;$('ri-flight-stop').disabled=!b;}
+async function updateView(){
+ const parent=$('ri-flight-audio-saved');parent.replaceChildren();
+ try{
+  const all=await savedAll();const rec=recSelect.value;
+  const groups=new Map();for(const item of all){const r=item.id.split(':')[0];if(!groups.has(r))groups.set(r,[]);groups.get(r).push(item);}
+  let text='';
+  for(const [r,items] of groups){
+   const count=items.length,size=items.reduce((sum,x)=>sum+x.blob.size,0);
+   const opt=[...sourceSelect.options].find(x=>x.value===r);
+   const row=document.createElement('div');row.className='ri-flight-item';row.style.flexWrap='wrap';
+   const label=document.createElement('span');label.style.flex='1';label.textContent=(opt?.text||r)+' — '+count+'/114 sura · '+formatSize(size);
+   row.append(label);
+   if(r===rec){const del=document.createElement('button');del.type='button';del.textContent='Obriši učača';del.onclick=async()=>{
+    if(!confirm('Obrisati preuzete snimke ovog učača?'))return;
+    for(const item of items)await query('readwrite',s=>s.delete(item.id));
+    await updateView();status('Sačuvani snimci su obrisani.');
+   };row.append(del);}
+   parent.append(row);
+  }
+  const selected=groups.get(rec)||[];
+  const total=selected.reduce((sum,x)=>sum+x.blob.size,0);
+  $('ri-flight-audio-count').textContent=rec?(selected.length+'/114 sačuvanih sura · '+formatSize(total)):'Izaberi učača.';
+  if(!groups.size)parent.textContent='Još nema sačuvanih učača.';
+ }catch(e){$('ri-flight-audio-count').textContent='Offline pohrana nije dostupna: '+e.message;}
+}
+async function audioUrl(rec,n){const resolve=window.riFlightResolveSource;if(typeof resolve!=='function')throw Error('Audio izvori nisu dostupni');const url=await resolve(rec,n);if(!url||!/^https:\/\//.test(url))throw Error('Nema snimka za suru '+n);return url;}
+async function saveOne(rec,n){if(await saved(rec,n))return 'already';
+ if(!navigator.onLine)throw Error('Nema interneta');
+ const url=await audioUrl(rec,n);
+ const response=await fetch(url,{mode:'cors',cache:'no-store'});
+ if(!response.ok)throw Error('Audio server HTTP '+response.status);
+ const ct=(response.headers.get('content-type')||'').toLowerCase();
+ if(ct&&!/audio|mpeg|octet-stream|mp3/.test(ct))throw Error('Snimak nije MP3');
+ const blob=await response.blob();if(blob.size<10000)throw Error('Nepotpun audio snimak');
+ await query('readwrite',s=>s.put({id:key(rec,n),blob:blob.type?blob:new Blob([blob],{type:'audio/mpeg'})}));
+ return 'saved';
+}
+recSelect.addEventListener('change',()=>{status('');$('ri-flight-reciter-size').textContent='Preuzima se cijeli Kur’an — 114 sura. Klikni „Provjeri veličinu“ za procjenu kad je server omogućava.';updateView();});
+$('ri-flight-check-size').onclick=async()=>{
+ const rec=recSelect.value;if(!rec){status('Prvo birin učača.');return;}
+ disableBusy(true);stop=false;let known=0,bytes=0;const count=114;
+ $('ri-flight-reciter-size').textContent='Provjeravam veličinu snimaka…';
+ for(let n=1;n<=count;n++){
+  if(stop)break;
+  try{const old=await saved(rec,n);if(old?.blob){bytes+=old.blob.size;known++;continue;}
+   const url=await audioUrl(rec,n);const head=await fetch(url,{method:'HEAD',mode:'cors'});
+   const len=Number(head.headers.get('content-length'));if(head.ok&&len>0){bytes+=len;known++;}
+  }catch{}
+  if(n%12===0)$('ri-flight-reciter-size').textContent='Provjereno '+n+'/114 · dostupne veličine '+known;
+ }
+ $('ri-flight-reciter-size').textContent=known===114?'Ukupna veličina svih 114 sura: '+formatSize(bytes):known?'Provjereno '+known+'/114 veličina ('+formatSize(bytes)+'). Ukupna veličina nije dostupna prije preuzimanja.':'Server ne dozvoljava provjeru veličine prije preuzimanja. Tačnu veličinu prikazat ćemo tokom spremanja.';
+ disableBusy(false);stop=false;
+};
+$('ri-flight-stop').onclick=()=>{stop=true;status('Zaustavljam nakon trenutne sure…');};
+$('ri-flight-all-save').onclick=async()=>{
+ const rec=recSelect.value;if(!rec){status('Prvo Birin učača.');return;}
+ disableBusy(true);stop=false;
+ if(navigator.storage?.persist)try{await navigator.storage.persist();}catch{}
+ let done=0,already=0,failed=0,first='';
+ for(let n=1;n<=114;n++){
+  if(stop)break;
+  status('Preuzimam učača: '+n+'/114 · novih '+done+' · greške '+failed);
+  try{const r=await saveOne(rec,n);r==='saved'?done++:already++;}
+  catch(e){failed++;if(!first)first=e.message;if(failed>=3&&done===0)break;}
+  if(n%3===0||n===114)await updateView();
+ }
+ await updateView();
+ const savedCount=(await savedAll()).filter(x=>x.id.startsWith(rec+':')).length;
+ if(savedCount===114){status('Sačuvan cijeli Kur’an ovog učača — 114/114 sura. Provjeri u avionskom režimu.');sourceSelect.value=rec;sourceSelect.dispatchEvent(new Event('change'));}
+ else status('Sačuvano '+savedCount+'/114 sura. '+(stop?'Preuzimanje prekinuto. ':failed?'Greška: '+first+'. ':'')+'Nastavi preuzimanje istim dugmetom kada imaš internet.');
+ disableBusy(false);stop=false;
+};
+$('ri-flight-menu-link').onclick=e=>{e.preventDefault();$('ri-flight-overlay').hidden=false;const menu=$('mainMenu');if(menu&&!menu.hidden)$('closeMenu')?.click();updateView();};
+$('ri-flight-close').onclick=()=>{$('ri-flight-overlay').hidden=true;};
+$('ri-flight-overlay').onclick=e=>{if(e.target===$('ri-flight-overlay'))$('ri-flight-overlay').hidden=true;};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('ri-flight-overlay').hidden)$('ri-flight-overlay').hidden=true;});
 if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./offline-sw.js',{scope:'./'}).catch(e=>status('Offline registracija nije uspjela: '+e.message));
 })();
 </script></body></html>
