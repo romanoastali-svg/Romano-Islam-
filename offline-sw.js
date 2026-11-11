@@ -1,5 +1,5 @@
-const CACHE='romano-islam-app-boxes-88b58d3a150ac836';
-const FILES=["amendar.html", "assets/images/82ade00fad9013e0a06a1f62.png", "assets/images/97ef6bcbdd1d1604653715d9.png", "assets/quran-data.js", "e_knjige.html", "ehli_bejt.html", "hadisja.html", "index.html", "manifest.webmanifest", "offline-sw.js", "readers/ar_latinica.html", "readers/bosanski.html", "readers/curani.html", "readers/offline.html", "readers/pamtime.html", "readers/sar_te_citine.html", "readers/sun_curani.html", "steluibe.html", "taberi/historija.html", "tefsirja.html"];
+const CACHE='romano-islam-app-boxes-28aa1af95b251e7b';
+const FILES=["amendar.html", "assets/images/82ade00fad9013e0a06a1f62.png", "assets/images/97ef6bcbdd1d1604653715d9.png", "assets/quran-data.js", "e_knjige.html", "ehli_bejt.html", "hadisja.html", "index.html", "manifest.webmanifest", "offline-sw.js", "readers/ajeti-ajeteja.js", "readers/ar_latinica.html", "readers/bosanski.html", "readers/curani.html", "readers/offline.html", "readers/pamtime.html", "readers/romane-prevod.js", "readers/sar_te_citine.html", "readers/sun_curani.html", "steluibe.html", "taberi/historija.html", "tefsirja.html"];
 
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(FILES.map(path=>new Request(new URL(path,self.registration.scope),{cache:'reload'})));await self.skipWaiting();})());});
 self.addEventListener('activate',event=>{event.waitUntil(self.clients.claim());});
