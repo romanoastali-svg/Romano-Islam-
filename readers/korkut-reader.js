@@ -1,11 +1,12 @@
 (()=>{'use strict';window.riPatchKorkutHtml=(html,runtimeURL)=>{
  function once(text,before,after){if(text.split(before).length!==2)throw Error('Neprepoznata verzija čitača: '+before.slice(0,55));return text.replace(before,()=>after);}
  const defaults="settings.readerCompare=false;settings.readerEditions=['mlivo'];let readerSura=";
- html=once(html,defaults,"settings.readerCompare=false;settings.readerEditions=['mlivo'];if(location.hash==='#romane'){settings.romaneArabic=true;settings.romaneTranslation=false;settings.romaneBosnian=true;settings.romaneLatin=false;}let readerSura=");
+ html=once(html,defaults,"settings.readerCompare=false;settings.readerEditions=['mlivo'];{const riLanguageDefaults={romaneArabic:true,romaneTranslation:false,romaneBosnian:true,romaneLatin:false,romaneKorkut:false};let riLanguages=null;try{const raw=JSON.parse(localStorage.getItem('ri-reader-languages-v1')||'null');if(raw&&Object.keys(riLanguageDefaults).every(k=>typeof raw[k]==='boolean'))riLanguages=raw;if(!riLanguages){const old=JSON.parse(localStorage.getItem('romano-settings-v2')||'null');if(old&&['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin'].every(k=>typeof old[k]==='boolean'))riLanguages={...riLanguageDefaults,...Object.fromEntries(Object.keys(riLanguageDefaults).filter(k=>typeof old[k]==='boolean').map(k=>[k,old[k]]))};}riLanguages=riLanguages||riLanguageDefaults;localStorage.setItem('ri-reader-languages-v1',JSON.stringify(riLanguages));}catch{riLanguages=riLanguageDefaults;}for(const k of ['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin'])settings[k]=riLanguages[k];window.riInitialReaderLanguages=riLanguages;}let readerSura=");
  const mlivo='<input type="checkbox" class="toggle" id="romaneBosnian" checked></label>';
- html=once(html,mlivo,mlivo+'<label class="setting-row"><span>Besim Korkut</span><input type="checkbox" class="toggle" id="romaneKorkut"></label><p class="note" id="romaneKorkutStatus" role="status">Besim Korkut · Al Quran Cloud</p>');
+ html=once(html,mlivo,mlivo+'<label class="setting-row"><span>Besim Korkut</span><input type="checkbox" class="toggle" id="romaneKorkut"></label><p class="note" id="romaneKorkutStatus" role="status" hidden></p>');
  html=once(html,'id="romaneTranslation" checked','id="romaneTranslation"');
  html=once(html,'id="romaneLatin" checked','id="romaneLatin"');
+ html=once(html,'function riFollowAllowed(force)',"const riBeforeBosnianTranslation=syncBosanski;syncBosanski=function(...args){const result=riBeforeBosnianTranslation(...args);window.riBosnianTranslationPaint?.();return result;};\nconst riBeforeBosnianEdition=syncEdition;syncEdition=function(...args){const result=riBeforeBosnianEdition(...args);window.riBosnianTranslationPaint?.();return result;};\nfunction riFollowAllowed(force)");
  const section=html.match(/(<script\b[^>]*\bid=["']ri-fatiha-kuran-script["'][^>]*>)([\s\S]*?)(<\/script>)/i);if(!section)throw Error('Nedostaje Ajeti Ajeteja prikaz');
  let code=section[2];
  const choices="return {ar:!!$('romaneArabic')?.checked,rom:!!$('romaneTranslation')?.checked,bs:!!$('romaneBosnian')?.checked,latin:!!$('romaneLatin')?.checked};";
@@ -24,10 +25,32 @@
 (()=>{'use strict';
 if(window.riKorkutReader)return;
 const $=id=>document.getElementById(id),control=$('romaneKorkut');if(!control)return;
-const counts=JSON.parse($('appData').textContent).counts;
+const data=JSON.parse($('appData').textContent),counts=data.counts;
 const endpoint='https://api.alquran.cloud/v1/quran/bs.korkut',backup='https://alquran.api.islamic.network/v1/quran/bs.korkut';
 let values=null,pending=null,failed=false,scheduled=false;
-const status=$('romaneKorkutStatus');
+const status=$('romaneKorkutStatus'),bosSelect=$('audioTranslation');
+let bosChoice='mlivo';try{if(localStorage.getItem('ri-bosnian-translation-v1')==='korkut')bosChoice='korkut';}catch{}
+let bosStatus=null;
+if(bosSelect){
+ const option=document.createElement('option');option.value='korkut';option.textContent='Besim Korkut';bosSelect.append(option);
+ bosStatus=document.createElement('p');bosStatus.className='note';bosStatus.hidden=true;bosStatus.setAttribute('role','status');bosSelect.closest('label').after(bosStatus);
+ bosSelect.addEventListener('change',event=>{if(location.hash!=='#bosanski')return;event.stopImmediatePropagation();bosChoice=bosSelect.value==='korkut'?'korkut':'mlivo';try{localStorage.setItem('ri-bosnian-translation-v1',bosChoice);}catch{}failed=false;paintBosnian();if(bosChoice==='korkut')ensure();},true);
+}
+let loadMessage='';
+function updateStatus(){for(const [node,on]of [[status,control.checked&&location.hash==='#romane'],[bosStatus,bosChoice==='korkut'&&location.hash==='#bosanski']]){if(node){node.textContent=on?loadMessage:'';node.hidden=!on||!loadMessage;}}}
+function paintBosnian(){
+ if(location.hash!=='#bosanski'||!bosSelect)return;
+ const state=window.romanoApp?.getAudioState();if(!state)return;
+ const ref=state.sura+':'+state.ayah,text=$('bosanskiText'),label=$('bosanskiTranslator');
+ bosSelect.value=bosChoice;
+ const value=bosChoice==='korkut'?(values?.[ref]||''):(data.mlivo[ref]||'');
+ if(text&&text.textContent!==value)text.textContent=value;
+ if(label)label.textContent=bosChoice==='korkut'?'Besim Korkut':'Mustafa Mlivo';
+ const rolling=$('bosanskiRollingText'),identity=state.sura+':'+bosChoice+':'+!!values;
+ if(rolling?.firstElementChild?.dataset.riTranslation!==identity){for(const article of rolling?.querySelectorAll('article.rolling-verse')||[]){const ayah=article.id.match(/^rolling-(\d+)$/)?.[1],p=article.querySelector('p[lang="bs"]');if(!ayah||!p)continue;const key=state.sura+':'+ayah;p.textContent=bosChoice==='korkut'?(values?.[key]||''):(data.mlivo[key]||'');article.dataset.riTranslation=identity;}}
+ updateStatus();
+}
+window.riBosnianTranslationPaint=paintBosnian;
 function validate(json){
  const data=json?.data;if(data?.edition?.identifier!=='bs.korkut'||!Array.isArray(data.surahs)||data.surahs.length!==114)throw Error('Neispravno izdanje prijevoda');
  const map={};for(let i=0;i<114;i++){const surah=data.surahs[i];if(surah.number!==i+1||!Array.isArray(surah.ayahs)||surah.ayahs.length!==counts[i])throw Error('Nepotpun prijevod sure');
@@ -53,15 +76,27 @@ function paint(){
 }
 function ensure(){
  if(values)return Promise.resolve(values);if(pending)return pending;if(failed)return Promise.resolve(null);
- status.textContent='Besim Korkut · učitavanje prijevoda…';
- pending=load().then(map=>{values=map;status.textContent='Besim Korkut · Al Quran Cloud · svih 114 sura';paint();notifyModal();return map;}).catch(error=>{failed=true;status.textContent='Korkutov prijevod nije učitan. Provjeri internet i ponovo uključi dugme.';console.warn('Besim Korkut:',error);return null;}).finally(()=>pending=null);
+ loadMessage='Besim Korkut · učitavanje prijevoda…';updateStatus();
+ pending=load().then(map=>{values=map;loadMessage='';updateStatus();paint();paintBosnian();notifyModal();return map;}).catch(error=>{failed=true;loadMessage='Korkutov prijevod nije učitan. Provjeri internet i ponovo uključi dugme.';updateStatus();console.warn('Besim Korkut:',error);return null;}).finally(()=>pending=null);
  return pending;
 }
 window.riKorkutText=ref=>values?.[ref]||'';window.riKorkutEnsure=ensure;window.riKorkutReader={edition:'bs.korkut',source:endpoint};
-control.addEventListener('change',()=>{failed=false;paint();if(control.checked)ensure();else notifyModal();});
+control.addEventListener('change',()=>{failed=false;paint();updateStatus();if(control.checked&&location.hash==='#romane')ensure();else notifyModal();});
 for(const id of ['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin'])$(id)?.addEventListener('change',paint);
 new MutationObserver(()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;paint();});}).observe($('romaneVerses'),{childList:true,subtree:true});
 const style=document.createElement('style');style.id='ri-korkut-style';style.textContent='#romane .ri-korkut-text,.ri-fatiha-korkut{font-size:var(--ri-reading-size,var(--bs,20px));line-height:1.7;color:var(--ink);margin:10px 0;white-space:pre-wrap}.ri-pc-reader #romane .verse-content>.ri-korkut-text{grid-column:2}.ri-pc-reader #romane.hide-romaneArabic .verse-content>.ri-korkut-text{grid-column:1}#romane .ri-korkut-text[hidden]{display:none!important}#romaneKorkutStatus{font-size:11px;line-height:1.4}';document.head.append(style);
-function reset(){if(location.hash!=='#romane')return;for(const [id,checked]of[['romaneArabic',true],['romaneTranslation',false],['romaneBosnian',true],['romaneLatin',false]]){const input=$(id);input.checked=checked;input.dispatchEvent(new Event('change',{bubbles:true}));}control.checked=false;control.dispatchEvent(new Event('change',{bubbles:true}));}
-reset();window.addEventListener('pageshow',event=>{if(event.persisted)reset();});
+const languageIds=['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin','romaneKorkut'];let restoring=false;
+function saveLanguages(){if(restoring)return;const choice=Object.fromEntries(languageIds.map(id=>[id,!!$(id)?.checked]));window.riInitialReaderLanguages=choice;try{localStorage.setItem('ri-reader-languages-v1',JSON.stringify(choice));}catch{}}
+function restoreLanguages(){
+ let choice=window.riInitialReaderLanguages;try{const saved=JSON.parse(localStorage.getItem('ri-reader-languages-v1')||'null');if(saved&&languageIds.every(id=>typeof saved[id]==='boolean'))choice=saved;}catch{}
+ if(!choice)return;restoring=true;
+ try{for(const id of languageIds){const input=$(id);if(input){input.checked=choice[id];input.dispatchEvent(new Event('change',{bubbles:true}));}}}finally{restoring=false;}
+ paint();updateStatus();
+}
+for(const id of languageIds)$(id)?.addEventListener('change',saveLanguages);
+window.riRestoreReaderLanguages=restoreLanguages;
+restoreLanguages();paintBosnian();if(location.hash==='#bosanski'&&bosChoice==='korkut')ensure();
+window.addEventListener('hashchange',()=>{paintBosnian();if(location.hash==='#bosanski'&&bosChoice==='korkut')ensure();});
+window.addEventListener('pageshow',event=>{if(event.persisted){restoreLanguages();paintBosnian();}});
+
 })();

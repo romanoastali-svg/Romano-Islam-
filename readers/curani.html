@@ -123,7 +123,7 @@
 <fieldset class="text-display-options"><legend>Sikavibe e tekstesoro</legend>
 <label class="setting-row"><span>Arapsko tekst</span><input type="checkbox" class="toggle" id="romaneArabic" checked></label>
 <label class="setting-row"><span>Romane</span><input type="checkbox" class="toggle" id="romaneTranslation"></label>
-<label class="setting-row"><span>Bosansko prjevod · Mustafa Mlivo</span><input type="checkbox" class="toggle" id="romaneBosnian" checked></label><label class="setting-row"><span>Besim Korkut</span><input type="checkbox" class="toggle" id="romaneKorkut"></label><p class="note" id="romaneKorkutStatus" role="status">Besim Korkut · Al Quran Cloud</p><label class="setting-row"><span>Arapska latinica</span><input type="checkbox" class="toggle" id="romaneLatin"></label>
+<label class="setting-row"><span>Bosansko prjevod · Mustafa Mlivo</span><input type="checkbox" class="toggle" id="romaneBosnian" checked></label><label class="setting-row"><span>Besim Korkut</span><input type="checkbox" class="toggle" id="romaneKorkut"></label><p class="note" id="romaneKorkutStatus" role="status" hidden></p><label class="setting-row"><span>Arapska latinica</span><input type="checkbox" class="toggle" id="romaneLatin"></label>
 </fieldset><p class="note">Romane: El-Fatiha hem El-Bekara 1–15 · o tekst so amen zajedno pripreminđam. Bosansko prjevod: Mustafa Mlivo · 114 sura.</p>
 <button type="button" class="button primary" id="romaneOpen">Gotovo — čitin o ajetja</button></div></details></div>
 <div class="reader-body" id="romaneBody"><div class="surah-title"><h2 id="romaneArabicTitle" lang="ar" dir="rtl"></h2><p id="romaneTitle"></p></div>
@@ -214,7 +214,7 @@ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostnam
 })();</script><script id="appData" type="application/json"></script><script src="readers/romane-prevod.js"></script><script src="readers/ajeti-ajeteja.js"></script><script src="assets/quran-data.js"></script><script>(()=>{'use strict';
 const D=JSON.parse(document.getElementById('appData').textContent),$=id=>document.getElementById(id),audio=$('quranAudio');
 let edition='mlivo';
-const defaults={ar:28,bs:16,translation:true,pronunciation:true,combinedArabic:true,combinedLatin:true,combinedBosnian:true,romaneArabic:true,romaneTranslation:true,romaneBosnian:true,readerCompare:false,readerEditions:['mlivo'],layout:'below',follow:true,highlight:true,auto:false,repeat:1};let settings={...defaults},saved=[];try{settings={...defaults,...JSON.parse(localStorage.getItem('romano-settings-v2')||'{}')};saved=JSON.parse(localStorage.getItem('romano-saved-v2')||'[]');if(!Array.isArray(saved))saved=[]}catch{}settings.readerCompare=false;settings.readerEditions=['mlivo'];if(location.hash==='#romane'){settings.romaneArabic=true;settings.romaneTranslation=false;settings.romaneBosnian=true;settings.romaneLatin=false;}let readerSura=1,audioSura=1,currentAyah=1,repeatIndex=1,manualUntil=0,loadingToken=0,lastPage='home',toastTimer,audioSources=[],audioSourceIndex=0,playIntent=false;
+const defaults={ar:28,bs:16,translation:true,pronunciation:true,combinedArabic:true,combinedLatin:true,combinedBosnian:true,romaneArabic:true,romaneTranslation:true,romaneBosnian:true,readerCompare:false,readerEditions:['mlivo'],layout:'below',follow:true,highlight:true,auto:false,repeat:1};let settings={...defaults},saved=[];try{settings={...defaults,...JSON.parse(localStorage.getItem('romano-settings-v2')||'{}')};saved=JSON.parse(localStorage.getItem('romano-saved-v2')||'[]');if(!Array.isArray(saved))saved=[]}catch{}settings.readerCompare=false;settings.readerEditions=['mlivo'];{const riLanguageDefaults={romaneArabic:true,romaneTranslation:false,romaneBosnian:true,romaneLatin:false,romaneKorkut:false};let riLanguages=null;try{const raw=JSON.parse(localStorage.getItem('ri-reader-languages-v1')||'null');if(raw&&Object.keys(riLanguageDefaults).every(k=>typeof raw[k]==='boolean'))riLanguages=raw;if(!riLanguages){const old=JSON.parse(localStorage.getItem('romano-settings-v2')||'null');if(old&&['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin'].every(k=>typeof old[k]==='boolean'))riLanguages={...riLanguageDefaults,...Object.fromEntries(Object.keys(riLanguageDefaults).filter(k=>typeof old[k]==='boolean').map(k=>[k,old[k]]))};}riLanguages=riLanguages||riLanguageDefaults;localStorage.setItem('ri-reader-languages-v1',JSON.stringify(riLanguages));}catch{riLanguages=riLanguageDefaults;}for(const k of ['romaneArabic','romaneTranslation','romaneBosnian','romaneLatin'])settings[k]=riLanguages[k];window.riInitialReaderLanguages=riLanguages;}let readerSura=1,audioSura=1,currentAyah=1,repeatIndex=1,manualUntil=0,loadingToken=0,lastPage='home',toastTimer,audioSources=[],audioSourceIndex=0,playIntent=false;
 function persist(){try{localStorage.setItem('romano-settings-v2',JSON.stringify(settings));localStorage.setItem('romano-saved-v2',JSON.stringify(saved))}catch{}}
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3500)}
 function closeMenu(){const wasOpen=!$('mainMenu').hidden;$('mainMenu').hidden=true;$('dismissMenu').hidden=true;$('app').classList.remove('menu-open');$('menuToggle').setAttribute('aria-expanded','false');if(wasOpen)$('menuToggle').focus({preventScroll:true})}
@@ -452,6 +452,8 @@ syncBosanski=function(){
  // A verse transition must move the entire language group as one unit.
  if(bs.style.transform||bs.style.opacity){group.style.transform=bs.style.transform;group.style.opacity=bs.style.opacity;bs.style.transform='';bs.style.opacity='';}
 };
+const riBeforeBosnianTranslation=syncBosanski;syncBosanski=function(...args){const result=riBeforeBosnianTranslation(...args);window.riBosnianTranslationPaint?.();return result;};
+const riBeforeBosnianEdition=syncEdition;syncEdition=function(...args){const result=riBeforeBosnianEdition(...args);window.riBosnianTranslationPaint?.();return result;};
 function riFollowAllowed(force){return force||(settings.follow&&Date.now()>=manualUntil);}
 function riMarkPanel(parent,target){
  if(!parent)return;
@@ -888,4 +890,4 @@ drawer.addEventListener('click',e=>{
 });
 window.addEventListener('hashchange',active);active();
 })();
-</script><script src="readers/korkut-reader.js"></script></body></html>
+</script><script src="readers/korkut-reader.js?v=jezici-20261111"></script></body></html>
