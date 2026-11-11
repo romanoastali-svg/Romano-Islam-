@@ -1,15 +1,6 @@
-/* ROMANO ISLAM APP ONLY: offline shell and saved Yasser Al-Dosari recordings. */
-const CACHE='romano-islam-flight-shell-v4';
-const APP=new URL('./index.html',self.registration.scope).href;
-const DB='romano-islam-flight-audio-v1';
-function lookup(id){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('recordings'))r.result.createObjectStore('recordings',{keyPath:'id'});};r.onerror=()=>reject(r.error);r.onsuccess=()=>{const db=r.result;const tx=db.transaction('recordings','readonly');const q=tx.objectStore('recordings').get(id);q.onsuccess=()=>{resolve(q.result);db.close();};q.onerror=()=>{reject(q.error);db.close();};};});}
-function respondAudio(blob,req){const size=blob.size;const base={'Content-Type':blob.type||'audio/mpeg','Accept-Ranges':'bytes','Access-Control-Allow-Origin':'*'};const match=/bytes=(\d+)-(\d*)/.exec(req.headers.get('range')||'');if(match){const start=Number(match[1]),end=match[2]?Math.min(size-1,Number(match[2])):size-1;if(start>=size||end<start)return new Response(null,{status:416,headers:{...base,'Content-Range':'bytes */'+size}});const chunk=blob.slice(start,end+1,blob.type||'audio/mpeg');return new Response(chunk,{status:206,headers:{...base,'Content-Range':`bytes ${start}-${end}/${size}`,'Content-Length':String(chunk.size)}});}return new Response(blob,{status:200,headers:{...base,'Content-Length':String(size)}});}
-self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(CACHE);await c.add(new Request(APP,{cache:'reload'}));await self.skipWaiting();})());});
-self.addEventListener('activate',e=>{e.waitUntil((async()=>{const all=await caches.keys();await Promise.all(all.filter(k=>k.startsWith('romano-islam-flight-shell-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim();})());});
-self.addEventListener('fetch',e=>{const req=e.request;if(req.method!=='GET')return;const url=new URL(req.url);
- const audioMatch=url.hostname==='audio-cdn.tarteel.ai'&&/^\/quran\/surah\/yasserAlDosari\/murattal\/mp3\/(\d{3})\.mp3$/.exec(url.pathname);
- if(audioMatch){e.respondWith((async()=>{try{const item=await lookup('dosari:'+Number(audioMatch[1]));if(item?.blob instanceof Blob)return respondAudio(item.blob,req);}catch{}return fetch(req);})());return;}
- const scope=new URL(self.registration.scope);if(url.origin!==self.location.origin||!url.pathname.startsWith(scope.pathname))return;
- if(req.mode!=='navigate'&&url.href!==APP)return;
- e.respondWith((async()=>{const c=await caches.open(CACHE);try{const r=await fetch(req);if(r.ok)await c.put(APP,r.clone()).catch(()=>{});return r;}catch(err){const saved=await c.match(APP);if(saved)return saved;throw err;}})());
-});
+const CACHE='romano-islam-app-boxes-88b58d3a150ac836';
+const FILES=["amendar.html", "assets/images/82ade00fad9013e0a06a1f62.png", "assets/images/97ef6bcbdd1d1604653715d9.png", "assets/quran-data.js", "e_knjige.html", "ehli_bejt.html", "hadisja.html", "index.html", "manifest.webmanifest", "offline-sw.js", "readers/ar_latinica.html", "readers/bosanski.html", "readers/curani.html", "readers/offline.html", "readers/pamtime.html", "readers/sar_te_citine.html", "readers/sun_curani.html", "steluibe.html", "taberi/historija.html", "tefsirja.html"];
+
+self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(FILES.map(path=>new Request(new URL(path,self.registration.scope),{cache:'reload'})));await self.skipWaiting();})());});
+self.addEventListener('activate',event=>{event.waitUntil(self.clients.claim());});
+self.addEventListener('fetch',event=>{const request=event.request,url=new URL(request.url),root=new URL(self.registration.scope);if(request.method!=='GET'||url.origin!==root.origin||!url.pathname.startsWith(root.pathname))return;event.respondWith((async()=>{const cache=await caches.open(CACHE);try{const response=await fetch(request);if(response.ok)await cache.put(request,response.clone());return response;}catch(error){const saved=await cache.match(request,{ignoreSearch:true});if(saved)return saved;throw error;}})());});
