@@ -1,0 +1,3 @@
+Bosanski naslovi: Buhari 97, Muslim 57, Ebu Davud 43 (prethodni radni spisak), Tirmizi 49, Ibn Madže 38 (ključevi 0–37).
+Nazivi Tirmizija i Ibn Madže prevedeni su prema engleskim metapodacima fawazahmed0/hadith-api@1; arapske oznake su naš prijevod, ne potvrđeni originalni arapski metapodaci.
+Nije provedena provjera stvarnog rada u browseru.
