@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "id": "navigacija",
+  "section": "zajednicko",
+  "title": "Navigacija ROMANO ISLAM",
+  "kind": "page-content",
+  "updatedAt": "2026-11-20",
+  "texts": {},
+  "datasets": {
+    "stavke": [
+      {
+        "label": "Angluni Strana",
+        "icon": "⌂",
+        "appHref": "#home",
+        "webHref": "index.html"
+      },
+      {
+        "label": "Čitin o Kur’ani",
+        "icon": "▤",
+        "appHref": "#romane",
+        "webHref": "readers/curani.html"
+      },
+      {
+        "label": "Šun hem Čitin o Kur’ani bosanski",
+        "icon": "◖))",
+        "appHref": "#bosanski",
+        "webHref": "readers/bosanski.html"
+      },
+      {
+        "label": "Šun o Kur’ani",
+        "icon": "◖))",
+        "appHref": "#listen",
+        "webHref": "readers/sun_curani.html"
+      },
+      {
+        "label": "Šun hem Čitin Arapski Latinica",
+        "icon": "☷",
+        "appHref": "#latin",
+        "webHref": "readers/ar_latinica.html"
+      },
+      {
+        "label": "Sar te čitine i te vačere čisto Arapski",
+        "icon": "Aa",
+        "appHref": "#izgovor",
+        "webHref": "readers/sar_te_citine.html"
+      },
+      {
+        "label": "Kur’an Offline ko Avioni",
+        "icon": "✈",
+        "appHref": "#ri-flight",
+        "webHref": "readers/offline.html"
+      },
+      {
+        "label": "Pamtime Ajetja",
+        "icon": "◇",
+        "appHref": "#bookmarks",
+        "webHref": "readers/pamtime.html"
+      },
+      {
+        "label": "Amendar",
+        "icon": "◎",
+        "appHref": "#amendar",
+        "webHref": "amendar.html"
+      },
+      {
+        "label": "Tefsirja",
+        "icon": "▤",
+        "appHref": "#tefsir",
+        "webHref": "tefsirja.html"
+      },
+      {
+        "label": "Hadisja",
+        "icon": "▤",
+        "appHref": "#hadis",
+        "webHref": "hadisja.html"
+      },
+      {
+        "label": "Ehli Bejt",
+        "icon": "▤",
+        "appHref": "#ehlibejt",
+        "webHref": "ehli_bejt.html"
+      },
+      {
+        "label": "Historia",
+        "icon": "▤",
+        "appHref": "#historija",
+        "webHref": "taberi/historija.html"
+      },
+      {
+        "label": "E-knjige",
+        "icon": "▤",
+        "appHref": "#eknjige",
+        "webHref": "e_knjige.html"
+      },
+      {
+        "label": "Šteluibe",
+        "icon": "⚙",
+        "appHref": "#settings",
+        "webHref": "steluibe.html"
+      },
+      {
+        "label": "Datenschutzerklärung",
+        "icon": "ⓘ",
+        "appHref": "datenschutz.html",
+        "webHref": "datenschutz.html"
+      },
+      {
+        "label": "Impressum & Urheberrecht",
+        "icon": "©",
+        "appHref": "impressum.html",
+        "webHref": "impressum.html"
+      }
+    ]
+  }
+}

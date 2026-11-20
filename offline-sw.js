@@ -1,4 +1,4 @@
-const CACHE='romano-islam-app-standard-romane-central-data-v2';
+const CACHE='romano-islam-app-standard-romane-central-data-v2-nav-v1';
 const FILES=["amendar.html", "assets/images/82ade00fad9013e0a06a1f62.png", "assets/images/97ef6bcbdd1d1604653715d9.png", "e_knjige.html", "ehli_bejt.html", "hadisja.html", "index.html", "manifest.webmanifest", "offline-sw.js", "readers/ar_latinica.html", "readers/bosanski.html", "readers/curani.html", "readers/korkut-reader.js", "readers/offline.html", "readers/pamtime.html", "readers/sar_te_citine.html", "readers/sun_curani.html", "steluibe.html", "taberi/historija.html", "tefsirja.html", "assets/romano-data.js", "assets/romano-book-reader.js", "hadisja-reader.js", "hadisja-style.css", "hadisja-knjiga.png", "", "datenschutz.html", "impressum.html", "izvori.html", "napomena-o-naslovima.html", "readers/historija.html", "assets/romano-pages.js"];
 
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(FILES.map(path=>new Request(new URL(path,self.registration.scope),{cache:'reload'})));await self.skipWaiting();})());});

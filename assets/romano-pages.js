@@ -13,6 +13,48 @@
     return node ? JSON.parse(node.textContent) : null;
   }
 
+  const menuPath = 'zajednicko/navigacija.json';
+  const menuContainers = /(<div class="(?:design-menu ri-menu-items|portal-drawer-links)">)[\s\S]*?(<\/div>)/g;
+  const menuHref = /^(?:#[a-z0-9-]+|(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.html(?:#[a-z0-9-]+)?)$/;
+
+  async function renderMenu(html, snapshot) {
+    if (!html.includes('ri-menu-items') && !html.includes('portal-drawer-links')) return html;
+    const entry = snapshot.data.books.find(book => book.path === menuPath && book.kind === 'page-content');
+    if (!entry) return html;
+
+    try {
+      const {datasets: {stavke}} = await RomanoData.book(entry, snapshot.source);
+      if (!Array.isArray(stavke) || !stavke.length || !stavke.every(item =>
+        item && typeof item.label === 'string' && item.label.trim() &&
+        typeof item.icon === 'string' &&
+        typeof item.appHref === 'string' && menuHref.test(item.appHref) &&
+        typeof item.webHref === 'string' && menuHref.test(item.webHref) && !item.webHref.startsWith('#'))) {
+        throw new Error('Neispravna centralna navigacija.');
+      }
+
+      return html.replace(menuContainers, (_, open, close) => {
+        const portal = open.includes('portal-drawer-links');
+        const links = stavke.map(({label, icon, appHref, webHref}) => {
+          const href = portal ? webHref : appHref;
+          const hrefValue = href.startsWith('#') ? href : new URL(href, root).href;
+          const route = !portal && href.startsWith('#') ? href.slice(1) : '';
+          const routeAttr = route ? ' data-ri-menu-route="' + escapeText(route) + '"' : '';
+          const flightId = route === 'ri-flight' ? ' id="ri-flight-menu-link"' : '';
+          const linkClass = portal ? 'portal-drawer-link' : 'ri-menu-link';
+          const iconClass = portal ? 'menu-ico' : 'ri-menu-icon';
+          const arrow = portal ? '<span class="menu-next" aria-hidden="true">›</span>' : '<b aria-hidden="true">›</b>';
+          return '<a class="' + linkClass + '" href="' + escapeText(hrefValue) + '"' + routeAttr + flightId +
+            '><span class="' + iconClass + '" aria-hidden="true">' + escapeText(icon) +
+            '</span><span>' + escapeText(label) + '</span>' + arrow + '</a>';
+        });
+        return open + links.join('') + close;
+      });
+    } catch (error) {
+      console.warn('Centralna navigacija nije dostupna.', error);
+      return html;
+    }
+  }
+
   async function render(page) {
     const snapshot = await RomanoData.catalog();
     const available = new Map(snapshot.data.books.filter(entry => entry.kind === 'page-content')
@@ -23,13 +65,14 @@
       if (!entry) throw new Error('Nedostaje centralni izvor: ' + path);
       return [path, await RomanoData.book(entry, snapshot.source)];
     })));
-    return page.html.replace(slots, (_, path, type, id) => {
+    const html = page.html.replace(slots, (_, path, type, id) => {
       const map = values.get(path)[type === 't' ? 'texts' : 'datasets'];
       if (!Object.hasOwn(map, id)) throw new Error('Nedostaje sadržaj: ' + id);
       const value = map[id];
       if (type === 't') return escapeText(value);
       return escapeJSON(type === 'q' ? JSON.stringify(value) : type === 'm' ? {...map.osnova, ...value} : value);
     });
+    return renderMenu(html, snapshot);
   }
 
   async function expand(source) {
