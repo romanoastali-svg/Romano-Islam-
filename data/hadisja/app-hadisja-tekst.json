@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "app-hadisja-tekst",
+  "section": "hadisja",
+  "kind": "page-content",
+  "title": "Hadisja",
+  "updatedAt": "2026-11-20",
+  "texts": {
+    "t86d9c167539cf60e95": "Sljedeći →",
+    "t1f61ff67093907fde1": "← Prethodni",
+    "tc846839daab7ddc373": "Napomena: kupovina i aktivacijski kodovi još nisu povezani. Samo vizuelni prikaz VIP pristupa.",
+    "td3608b2e1177435e6d": "Aktiviraj",
+    "t4ea28c56593509f8c2": "Aktivacijski kod",
+    "tff6063103cbf9b3e62": "Aktivacijski kod (uskoro)",
+    "t52b8708ce06a136c62": "Otključaj kompletnu biblioteku",
+    "t69c6475d0e84ac150c": "Prvih 10 hadisa u svakoj zbirci dostupno je besplatno. Ostali hadisi su zaključani.",
+    "tc9aebb34e5b7f1c195": "VIP · Kompletna biblioteka",
+    "t73d6c42bff6163ca7f": "Tekst hadisa",
+    "t664c3ac1c8a3ef5e25": "Izbor jezika",
+    "t3968a2b4bec0a76658": "Broj hadisa",
+    "t4fcf34b5ca91187ba4": "Zbirka",
+    "t972fe29ce6820f9a17": "Šest zbirki hadisa · Arapski izvornik i dostupni prijevodi · Prvih 10 hadisa svake zbirke otvoreno za čitanje.",
+    "te4d3f47b7bb426225d": "Crvena knjiga Hadisja"
+  },
+  "datasets": {}
+}

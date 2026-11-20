@@ -1,0 +1,39 @@
+name: Objavi ROMANO ISLAM i katalog
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: romano-islam-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'romanoastali-svg/Romano-Islam-' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/configure-pages@v5
+      - name: Pripremi web i generiši katalog
+        run: |
+          mkdir _site
+          git archive HEAD | tar -x -C _site --exclude=.github --exclude=tools --exclude='index 1.html'
+          python3 .github/data/build_catalog.py _site
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment

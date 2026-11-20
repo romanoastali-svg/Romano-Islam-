@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "version": "b38b57a045b3f554f30d50528731807a5e485915c7838a890c22a069c37fd2a8",
+  "sections": {
+    "angluni": "Angluni Strana",
+    "curani": "Čitin o Kur’ani",
+    "bosanski": "Šun hem Čitin o Kur’ani bosanski",
+    "sun-curani": "Šun o Kur’ani",
+    "latinica": "Šun hem Čitin Arapski Latinica",
+    "izgovor": "Sar te čitine i te vačere čisto Arapski",
+    "offline": "Kur’an Offline ko Avioni",
+    "pamtime": "Pamtime Ajetja",
+    "amendar": "Amendar",
+    "tefsirja": "Tefsirja",
+    "hadisja": "Hadisja",
+    "ehli-bejt": "Ehli Bejt",
+    "historia": "Historia",
+    "tabari": "Historia Tabaria",
+    "e-knjige": "E-knjige",
+    "steluibe": "Šteluibe",
+    "donacia": "Donacia",
+    "datenschutz": "Datenschutz",
+    "impressum": "Impressum",
+    "izvori": "Izvori i licence",
+    "zajednicko": ""
+  },
+  "books": [
+    {
+      "id": "app-angluni-tekst",
+      "section": "angluni",
+      "kind": "page-content",
+      "title": "Angluni Strana",
+      "path": "angluni/app-angluni-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "1e69b5da178bdfec9ffdcabec956792763a357215635ca73abfdc613f6494cf0"
+    },
+    {
+      "id": "portal-index-tekst",
+      "section": "angluni",
+      "kind": "page-content",
+      "title": "Angluni Strana",
+      "path": "angluni/portal-index-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "57c05830dc91612dac5e5a7d7a592391faee1b05b6bdcb600ff22eb01e97ea44"
+    },
+    {
+      "id": "izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07",
+      "section": "curani",
+      "kind": "page-content",
+      "title": "Čitin o Kur’ani",
+      "path": "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+      "updatedAt": "2026-11-20",
+      "version": "666b643cb362c7a211b822d0696fce48f134d9c64583edbf0b449612c3a5419f"
+    },
+    {
+      "id": "izvor-romane-prevod-cf9efe1e51965eaafe",
+      "section": "curani",
+      "kind": "page-content",
+      "title": "Čitin o Kur’ani",
+      "path": "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+      "updatedAt": "2026-11-20",
+      "version": "159c907101699000fd07cc8f46a37b2fbe529261c415be9beccda17319c6b863"
+    },
+    {
+      "id": "kuranski-tekst",
+      "section": "curani",
+      "kind": "page-content",
+      "title": "Kur’anski tekst, prijevodi i čitanje",
+      "path": "curani/kuranski-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "e7b62d5ae0ef66590c3d9e9278cc23c307c47a19f67e488f7897a9b9aea4fcdc"
+    },
+    {
+      "id": "portal-assets-original-app-tekst",
+      "section": "curani",
+      "kind": "page-content",
+      "title": "Čitin o Kur’ani",
+      "path": "curani/portal-assets-original-app-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "554768c137109fb0122f709eba1f681a9abf78f5de02a4b7e5128c1351e1e5bd"
+    },
+    {
+      "id": "abudawud",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "Sunen Ebu Davud",
+      "path": "hadisja/abudawud.json",
+      "updatedAt": "2026-11-20",
+      "version": "be0a8ca7e5e63c1b900d73629911275aeb93ce7e4206a5756e24ab0a113af7d7"
+    },
+    {
+      "id": "app-hadisja-tekst",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja",
+      "path": "hadisja/app-hadisja-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "1869909e4f60695fe1552342bfb30295f8813f262027072f6f3fe98d8652f3a1"
+    },
+    {
+      "id": "bukhari",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "Sahih Buhari",
+      "path": "hadisja/bukhari.json",
+      "updatedAt": "2026-11-20",
+      "version": "34b63ef311c01644cee7ded9a5c7f92094b13b0f35165e9284b0dfaf20d1435d"
+    },
+    {
+      "id": "ibnmajah",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "Sunen Ibn Madže",
+      "path": "hadisja/ibnmajah.json",
+      "updatedAt": "2026-11-20",
+      "version": "5dbfe2ed81f457d03e38da1d8207c20d158775d1145256b116a314b35a020af6"
+    },
+    {
+      "id": "izvor-hadisja-arapski-poglavlja-d42f681cfc8b749bbe",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja",
+      "path": "hadisja/izvor-hadisja-arapski-poglavlja-d42f681cfc8b749bbe.json",
+      "updatedAt": "2026-11-20",
+      "version": "585d54955799a3d88d7ca999e951f26fccc71c59555f699b3e5c44e533ef82f9"
+    },
+    {
+      "id": "izvor-hadisja-bosanski-44136fa355b3678a11",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja",
+      "path": "hadisja/izvor-hadisja-bosanski-44136fa355b3678a11.json",
+      "updatedAt": "2026-11-20",
+      "version": "1071a1199154c50a6b3e99aecbc27d518e0f75c20ae3b994e30dcb178711af13"
+    },
+    {
+      "id": "izvor-hadisja-bosanski-poglavlja-0d0c830b801af9a830",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja",
+      "path": "hadisja/izvor-hadisja-bosanski-poglavlja-0d0c830b801af9a830.json",
+      "updatedAt": "2026-11-20",
+      "version": "4f3b8142a0e461c1e0c689db975eb69048c16a9a62ff7ed00971b3da1a4f35a5"
+    },
+    {
+      "id": "muslim",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "Sahih Muslim",
+      "path": "hadisja/muslim.json",
+      "updatedAt": "2026-11-20",
+      "version": "f2d2c750d1e4ec0e3a11f5f55880516e9704b28fe08395a9ec3767fbf0a09996"
+    },
+    {
+      "id": "nawawi",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "40 Nevevijevih hadisa",
+      "path": "hadisja/nawawi.json",
+      "updatedAt": "2026-11-20",
+      "version": "3bb76cd42183096b19247624c361a45194baf8cd4d81723792217f58d0f579cd"
+    },
+    {
+      "id": "portal-hadisja-tekst",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja",
+      "path": "hadisja/portal-hadisja-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "3244787869a5b794adbab8c694dfec1b3f3a39ec409dc11996a887c1ec68615c"
+    },
+    {
+      "id": "postavke-citaca",
+      "section": "hadisja",
+      "kind": "page-content",
+      "title": "Hadisja – zbirke, jezici i poglavlja",
+      "path": "hadisja/postavke-citaca.json",
+      "updatedAt": "2026-11-20",
+      "version": "d6aabc3d43ac5d5ec63aedc3e26b9310908ac3992cb3a0410df4e5a97ad5792d"
+    },
+    {
+      "id": "tirmidhi",
+      "section": "hadisja",
+      "kind": "hadith-translations",
+      "title": "Džami’ Tirmizi",
+      "path": "hadisja/tirmidhi.json",
+      "updatedAt": "2026-11-20",
+      "version": "99895cec9228d5ffaea99c3095f5f001d218ccd8be7952fe95739da9faa8a2d8"
+    },
+    {
+      "id": "app-taberi-historija-tekst",
+      "section": "historia",
+      "kind": "page-content",
+      "title": "Historia",
+      "path": "historia/app-taberi-historija-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "07dd67fe02b189cccd6dd9a5964fb3d3b744026f4fa879daf0707a1b75b868f1"
+    },
+    {
+      "id": "portal-taberi-historija-tekst",
+      "section": "historia",
+      "kind": "page-content",
+      "title": "Historia",
+      "path": "historia/portal-taberi-historija-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "075276ca12b8ac8f882083d26d9a72d7eb1647b775a35ffaabb97ec14f020b1f"
+    },
+    {
+      "id": "tom-1",
+      "section": "tabari",
+      "kind": "book",
+      "title": "Historia Tabaria · tom 1",
+      "path": "tabari/tom-1.json",
+      "updatedAt": "2026-11-20",
+      "version": "7fe0b7ec394fa777417ed585cd3f10059602aaed24ccacf5b9bf75fdb38c3f2b"
+    },
+    {
+      "id": "dijeljeni-tekst",
+      "section": "zajednicko",
+      "kind": "page-content",
+      "title": "Zajednički tekst",
+      "path": "zajednicko/dijeljeni-tekst.json",
+      "updatedAt": "2026-11-20",
+      "version": "ba0dda51e94ab30d0cd1560a2548d775eaebf60e2f207765af1ee8059c9717b6"
+    }
+  ]
+}

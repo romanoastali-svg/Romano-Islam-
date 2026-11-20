@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "portal-assets-original-app-tekst",
+  "section": "curani",
+  "kind": "page-content",
+  "title": "Čitin o Kur’ani",
+  "updatedAt": "2026-11-20",
+  "texts": {
+    "t8669d9de6156dadbca": "Ovdje nema još provjerenih tekstova. Nijedna predaja nije predstavljena kao kur’anski ajet.",
+    "t546f9487e958eecee6": "Taberijeva Historija – arapski tekst i bosanski prijevod",
+    "t2c190b268e0266bd6e": "Sljedeći dio →",
+    "t38bda4d9ff251eeee2": "← Prethodni dio",
+    "tdd5611fcde7dc2a78c": "Dio 7 · stranice 131–155",
+    "t131260ee2daa8f862d": "Dio 6 · stranice 106–130",
+    "t3aadbb31fc21f5d89a": "Dio 5 · stranice 81–105",
+    "tab26a7beeaac249bc1": "Dio 4 · stranice 56–80",
+    "t8b051974e339c2c34f": "Dio 3 · stranice 31–55",
+    "td7b37fb2dafce593a0": "Dio 2 · stranice 6–30",
+    "t6d5f5616565070272b": "Dio 1 · stranice 3–5",
+    "t30c2476818c841e063": "Odaberi dio"
+  },
+  "datasets": {}
+}

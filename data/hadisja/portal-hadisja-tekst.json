@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "portal-hadisja-tekst",
+  "section": "hadisja",
+  "kind": "page-content",
+  "title": "Hadisja",
+  "updatedAt": "2026-11-20",
+  "texts": {
+    "t41bb9fde495febe514": "Otvori Hadisja"
+  },
+  "datasets": {}
+}

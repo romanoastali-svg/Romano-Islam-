@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "portal-taberi-historija-tekst",
+  "section": "historia",
+  "kind": "page-content",
+  "title": "Historia",
+  "updatedAt": "2026-11-20",
+  "texts": {
+    "ta0533f2145db869372": "Otvori knjigu",
+    "tcd13feb3b96032552c": "Historia Tabarija",
+    "te3aa4466e346ca71fb": "Otvori Historia Tabarija",
+    "t4fc33bd33608d36f22": "Historia · ROMANO ISLAM"
+  },
+  "datasets": {}
+}

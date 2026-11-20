@@ -1,0 +1,313 @@
+{
+  "amendar": {
+    "aplikacija": {
+      "amendar.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "amendar.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "datenschutz": {
+    "aplikacija": {
+      "datenschutz.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "datenschutz.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "e-knjige": {
+    "aplikacija": {
+      "e_knjige.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "e_knjige.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "ehli-bejt": {
+    "aplikacija": {
+      "ehli_bejt.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "ehli_bejt.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "hadisja": {
+    "aplikacija": {
+      "hadisja.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/kuranski-tekst.json",
+        "hadisja/app-hadisja-tekst.json",
+        "hadisja/izvor-hadisja-arapski-poglavlja-d42f681cfc8b749bbe.json",
+        "hadisja/izvor-hadisja-bosanski-poglavlja-0d0c830b801af9a830.json",
+        "hadisja/postavke-citaca.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "hadisja.html": [
+        "hadisja/portal-hadisja-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "impressum": {
+    "aplikacija": {
+      "impressum.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "impressum.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "angluni": {
+    "aplikacija": {
+      "index.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "index.html": [
+        "angluni/app-angluni-tekst.json",
+        "angluni/portal-index-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "izvori": {
+    "aplikacija": {
+      "izvori.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ],
+      "napomena-o-naslovima.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "izvori.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ],
+      "napomena-o-naslovima.html": [
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "latinica": {
+    "aplikacija": {
+      "readers/ar_latinica.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/ar_latinica.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "bosanski": {
+    "aplikacija": {
+      "readers/bosanski.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/bosanski.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "curani": {
+    "aplikacija": {
+      "readers/curani.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "assets/images/original-app.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ],
+      "assets/original-app.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/kuranski-tekst.json",
+        "curani/portal-assets-original-app-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ],
+      "original-app.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ],
+      "readers/curani.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "offline": {
+    "aplikacija": {
+      "readers/offline.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/offline.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "pamtime": {
+    "aplikacija": {
+      "readers/pamtime.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/pamtime.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "izgovor": {
+    "aplikacija": {
+      "readers/sar_te_citine.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/sar_te_citine.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "sun-curani": {
+    "aplikacija": {
+      "readers/sun_curani.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "readers/sun_curani.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "steluibe": {
+    "aplikacija": {
+      "steluibe.html": [
+        "angluni/app-angluni-tekst.json",
+        "curani/izvor-ri-ajeti-ajeteja-poveznice-3ff3fdc93c00e8db07.json",
+        "curani/izvor-romane-prevod-cf9efe1e51965eaafe.json",
+        "curani/kuranski-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "steluibe.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "historia": {
+    "aplikacija": {
+      "taberi/historija.html": [
+        "angluni/app-angluni-tekst.json",
+        "historia/app-taberi-historija-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "taberi/historija.html": [
+        "angluni/app-angluni-tekst.json",
+        "historia/portal-taberi-historija-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "tefsirja": {
+    "aplikacija": {
+      "tefsirja.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    },
+    "portal": {
+      "tefsirja.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  },
+  "donacia": {
+    "portal": {
+      "donacia.html": [
+        "angluni/app-angluni-tekst.json",
+        "zajednicko/dijeljeni-tekst.json"
+      ]
+    }
+  }
+}

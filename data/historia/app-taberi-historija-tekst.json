@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "app-taberi-historija-tekst",
+  "section": "historia",
+  "kind": "page-content",
+  "title": "Historia",
+  "updatedAt": "2026-11-20",
+  "texts": {
+    "t4d2721fbd287235d62": "Prozor za citanje",
+    "t9f017ab820ba223551": "Rode",
+    "t497c7cfa5a8cc49387": "Rode o lafi",
+    "tcb6c01a6a71d5cdfd4": "Sljedeća stranica",
+    "t774f1d6b2910de2001": "←",
+    "t933be3f23af8b8f543": "Prethodna stranica",
+    "t004ae307186928d408": "Arapsko orginal",
+    "t0bafb2704f5a90c9b5": "Bosansko prevod",
+    "tceced1ac47f8df2cb1": "Jezik teksta",
+    "t1dc514c441b2d51bc1": "Teme knjige",
+    "tff7603a9aafde59ba5": "Sadržaj · 3–155",
+    "t37127b457e7db3d6d3": "Odaberi knjigu",
+    "taee8736c2b78925066": "A+",
+    "t514d0e5494bbf52d07": "Povećaj slova",
+    "t8de4e50caae497126b": "A−",
+    "ta9aabb2598d4992307": "Smanji slova"
+  },
+  "datasets": {}
+}

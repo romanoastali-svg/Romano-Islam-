@@ -1,9 +1,10 @@
 /* HADISJA: full-collection indexed reader. No changes to Quran, Tabari or APP design. */
 (()=>{'use strict';
 const ROOT=document.getElementById('hadisja-reader');if(!ROOT)return;
+const readerContent=JSON.parse(document.getElementById('ri-hadith-content').textContent);
 const BASE='https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/';
-const BOOKS=[['bukhari','Sahih Buhari'],['muslim','Sahih Muslim'],['abudawud','Sunen Ebu Davud'],['tirmidhi','Džami’ Tirmizi'],['ibnmajah','Sunen Ibn Madže'],['nawawi','40 Nevevijevih hadisa']];
-const LANGS=[['ara','Arapski izvornik'],['eng','English'],['tur','Türkçe'],['bos','Bosanski — naš prijevod']];
+const BOOKS=readerContent["books"];
+const LANGS=readerContent["langs"];
 // Only temporary display limits while an Arabic edition index is loading; not asserted as source totals.
 const APPROX={bukhari:7589,muslim:7563,abudawud:5274,tirmidhi:3998,ibnmajah:4343,nawawi:42};
 const $=id=>ROOT.querySelector('#'+id), state={book:'bukhari',number:1,lang:'ara'};
@@ -11,6 +12,18 @@ const cache=new Map(), indices=new Map(), chapterTitles=new Map(), chapterLoads=
 let num=$('hj-number');
 BOOKS.forEach(([key,name])=>{const o=document.createElement('option');o.value=key;o.textContent=name;sel.appendChild(o)});
 LANGS.forEach(([key,label])=>{const b=document.createElement('button');b.type='button';b.className='hj-lang';b.dataset.lang=key;b.textContent=label;b.addEventListener('click',()=>{state.lang=key;render();loadChapters(key,state.book)});langs.appendChild(b)});
+async function bosnianEdition(book) {
+ const snapshot=await RomanoData.catalog();
+ const entry=snapshot.data.books.find(item=>item.kind==='hadith-translations'&&item.section==='hadisja'&&item.id===book);
+ if(!entry)return [];
+ const data=await RomanoData.book(entry,snapshot.source);
+ return data.pages.map(page=>({hadithnumber:page.number,text:(page.content.bs||[]).map(block=>block.text).join('\n\n')})).filter(row=>row.text);
+}
+RomanoData.catalog().then(({data})=>{
+ for(const entry of data.books.filter(item=>item.kind==='book'&&item.section==='hadisja')){
+  sel.add(new Option(entry.title,'library:'+entry.id));
+ }
+}).catch(()=>{});
 const friendly=()=>BOOKS.find(x=>x[0]===state.book)[1];
 const index=()=>indices.get(state.book);
 const max=()=>index()?.max||APPROX[state.book];
@@ -22,147 +35,7 @@ function initInput(){const old=$('hj-number');if(old.tagName.toLowerCase()==='se
 }
 function selectedChapter(){const chapter=$('hj-chapter');return chapter?.value||''}
 // Verified-language presentation. Never leak English as a fallback in other language modes.
-const CHAPTER_GLOSSARY={
- 'revelation':['كتاب بدء الوحي','Vahyin Başlangıcı','Početak objave'],
- 'beginning of revelation':['كتاب بدء الوحي','Vahyin Başlangıcı','Početak objave'],
- 'belief':['كتاب الإيمان','İman','Vjerovanje'],
- 'faith':['كتاب الإيمان','İman','Vjerovanje'],
- 'knowledge':['كتاب العلم','İlim','Znanje'],
- 'ablutions':['كتاب الوضوء','Abdest','Abdest'],
- 'ablution':['كتاب الوضوء','Abdest','Abdest'],
- 'wudu':['كتاب الوضوء','Abdest','Abdest'],
- 'bathing':['كتاب الغسل','Gusül','Gusul'],
- 'ghusl':['كتاب الغسل','Gusül','Gusul'],
- 'menstrual periods':['كتاب الحيض','Hayız','Menstruacija'],
- 'menstruation':['كتاب الحيض','Hayız','Menstruacija'],
- 'tayammum':['كتاب التيمم','Teyemmüm','Tejemum'],
- 'prayer':['كتاب الصلاة','Namaz','Namaz'],
- 'prayers':['كتاب الصلاة','Namaz','Namaz'],
- 'times of the prayers':['كتاب مواقيت الصلاة','Namaz Vakitleri','Namaska vremena'],
- 'times of prayer':['كتاب مواقيت الصلاة','Namaz Vakitleri','Namaska vremena'],
- 'call to prayers':['كتاب الأذان','Ezan','Ezan'],
- 'call to prayer':['كتاب الأذان','Ezan','Ezan'],
- 'adhan':['كتاب الأذان','Ezan','Ezan'],
- 'friday prayer':['كتاب الجمعة','Cuma Namazı','Džuma-namaz'],
- 'friday':['كتاب الجمعة','Cuma','Petak'],
- 'fear prayer':['كتاب صلاة الخوف','Korku Namazı','Namaz u strahu'],
- 'two festivals':['كتاب العيدين','Bayramlar','Dva bajrama'],
- 'eid':['كتاب العيدين','Bayramlar','Bajrami'],
- 'witr prayer':['كتاب الوتر','Vitir Namazı','Vitir-namaz'],
- 'witr':['كتاب الوتر','Vitir Namazı','Vitir-namaz'],
- 'funerals':['كتاب الجنائز','Cenazeler','Dženaze'],
- 'funeral':['كتاب الجنائز','Cenazeler','Dženaze'],
- 'zakat':['كتاب الزكاة','Zekât','Zekat'],
- 'charity':['كتاب الصدقة','Sadaka','Sadaka'],
- 'fasting':['كتاب الصوم','Oruç','Post'],
- 'fast':['كتاب الصوم','Oruç','Post'],
- 'taraweeh':['كتاب صلاة التراويح','Teravih Namazı','Teravih-namaz'],
- 'night prayer':['كتاب قيام الليل','Gece Namazı','Noćni namaz'],
- 'pilgrimage':['كتاب الحج','Hac','Hadž'],
- 'hajj':['كتاب الحج','Hac','Hadž'],
- 'umrah':['كتاب العمرة','Umre','Umra'],
- 'fighting for the cause of allah':['كتاب الجهاد والسير','Cihad ve Siyer','Džihad i vojni pohodi'],
- 'jihad':['كتاب الجهاد','Cihad','Džihad'],
- 'marriage':['كتاب النكاح','Nikâh','Brak'],
- 'divorce':['كتاب الطلاق','Talak','Razvod'],
- 'food':['كتاب الأطعمة','Yiyecekler','Hrana'],
- 'foods':['كتاب الأطعمة','Yiyecekler','Hrana'],
- 'drinks':['كتاب الأشربة','İçecekler','Pića'],
- 'dress':['كتاب اللباس','Giyim','Odjeća'],
- 'clothing':['كتاب اللباس','Giyim','Odjeća'],
- 'medicine':['كتاب الطب','Tıp','Medicina'],
- 'patients':['كتاب المرضى','Hastalar','Bolesnici'],
- 'good manners':['كتاب الأدب','Edep','Lijepo ponašanje'],
- 'manners':['كتاب الأدب','Edep','Ponašanje'],
- 'etiquette':['كتاب الأدب','Edep','Lijepo ponašanje'],
- 'invocations':['كتاب الدعوات','Dualar','Dove'],
- 'supplications':['كتاب الدعاء','Dualar','Dove'],
- 'supplication':['كتاب الدعاء','Dualar','Dova'],
- 'destiny':['كتاب القدر','Kader','Određenje'],
- 'divine decree':['كتاب القدر','Kader','Allahovo određenje'],
- 'oaths':['كتاب الأيمان والنذور','Yeminler','Zakletve'],
- 'vows':['كتاب النذور','Adaklar','Zavjeti'],
- 'dreams':['كتاب التعبير','Rüyalar','Snovi'],
- 'interpretation of dreams':['كتاب التعبير','Rüya Tabiri','Tumačenje snova'],
- 'prophets':['كتاب أحاديث الأنبياء','Peygamberler','Vjerovjesnici'],
- 'stories of the prophets':['كتاب أحاديث الأنبياء','Peygamberlerin Kıssaları','Kazivanja o vjerovjesnicima'],
- 'virtues':['كتاب الفضائل','Faziletler','Vrline'],
- 'virtues of the quran':['كتاب فضائل القرآن','Kur’an’ın Faziletleri','Vrijednosti Kur’ana'],
- 'interpretation of the quran':['كتاب التفسير','Kur’an Tefsiri','Tefsir Kur’ana'],
- 'commentary':['كتاب التفسير','Tefsir','Tefsir'],
- 'transactions':['كتاب البيوع','Alışveriş','Kupoprodaja'],
- 'sales':['كتاب البيوع','Satışlar','Prodaja'],
- 'buying and selling':['كتاب البيوع','Alışveriş','Kupoprodaja'],
- 'hiring':['كتاب الإجارة','İcâre','Najam'],
- 'agriculture':['كتاب المزارعة','Ziraat','Poljoprivreda'],
- 'loans':['كتاب القرض','Borçlar','Pozajmice'],
- 'gifts':['كتاب الهبة','Hibeler','Pokloni'],
- 'inheritance':['كتاب الفرائض','Miras','Nasljedstvo'],
- 'wills':['كتاب الوصايا','Vasiyetler','Oporuke'],
- 'testaments':['كتاب الوصايا','Vasiyetler','Oporuke'],
- 'witnesses':['كتاب الشهادات','Şahitlik','Svjedoci'],
- 'testimony':['كتاب الشهادات','Şahitlik','Svjedočenje'],
- 'judgments':['كتاب الأحكام','Hükümler','Presude'],
- 'judgement':['كتاب الأحكام','Hükümler','Presude'],
- 'judgments ahkaam':['كتاب الأحكام','Hükümler','Presude'],
- 'punishments':['كتاب الحدود','Had Cezaları','Kazne'],
- 'penalties':['كتاب الحدود','Cezalar','Kazne'],
- 'blood money':['كتاب الديات','Diyet','Krvarina'],
- 'hudud':['كتاب الحدود','Had Cezaları','Propisane kazne'],
- 'slaves':['كتاب العتق','Köle Azadı','Robovi'],
- 'manumission':['كتاب العتق','Köle Azadı','Oslobađanje robova'],
- 'peace treaty':['كتاب الصلح','Sulh','Pomirenje'],
- 'reconciliation':['كتاب الصلح','Sulh','Pomirenje'],
- 'oppression':['كتاب المظالم','Zulüm','Nepravda'],
- 'injustice':['كتاب المظالم','Zulüm','Nepravda'],
- 'good deeds':['كتاب الرقاق','İyi Ameller','Dobra djela'],
- 'heart softening':['كتاب الرقاق','Kalbi Yumuşatan Sözler','Omekšavanje srca'],
- 'ar-riqaq':['كتاب الرقاق','Rikak','Omekšavanje srca'],
- 'trials':['كتاب الفتن','Fitneler','Iskušenja'],
- 'afflictions':['كتاب الفتن','Fitneler','Iskušenja'],
- 'tribulations':['كتاب الفتن','Fitneler','Iskušenja'],
- 'faith and its branches':['كتاب الإيمان','İman','Vjerovanje'],
- 'purification':['كتاب الطهارة','Taharet','Čistoća'],
- 'mosques':['كتاب المساجد','Mescitler','Džamije'],
- 'mosques and places of prayer':['كتاب المساجد ومواضع الصلاة','Mescitler ve Namaz Yerleri','Džamije i mjesta za namaz'],
- 'travel':['كتاب السفر','Sefer','Putovanje'],
- 'travellers':['كتاب صلاة المسافرين','Yolcular','Putnici'],
- 'virtue of the companions':['كتاب فضائل الصحابة','Sahabenin Faziletleri','Vrline ashaba'],
- 'companions':['كتاب الصحابة','Sahabe','Ashabi'],
- 'signs of the day of judgment':['كتاب الفتن وأشراط الساعة','Kıyamet Alametleri','Predznaci Sudnjeg dana'],
- 'day of judgment':['كتاب القيامة','Kıyamet','Sudnji dan'],
- 'repentance':['كتاب التوبة','Tövbe','Pokajanje'],
- 'remembrance':['كتاب الذكر','Zikir','Zikr'],
- 'paradise':['كتاب الجنة','Cennet','Džennet'],
- 'hell':['كتاب النار','Cehennem','Džehennem'],
- 'hypocrites':['كتاب صفات المنافقين','Münafıklar','Licemjeri'],
- 'hypocrisy':['كتاب النفاق','Münafıklık','Licemjerstvo'],
- 'knowledge and seeking permission':['كتاب الاستئذان','İzin İsteme','Traženje dopuštenja'],
- 'seeking permission':['كتاب الاستئذان','İzin İsteme','Traženje dopuštenja'],
- 'greetings':['كتاب السلام','Selam','Pozdravi'],
- 'salutations':['كتاب السلام','Selam','Pozdravi'],
- 'horses':['كتاب الخيل','Atlar','Konji'],
- 'hunting':['كتاب الصيد','Avcılık','Lov'],
- 'sacrifices':['كتاب الأضاحي','Kurbanlar','Kurbani'],
- 'sacrifice':['كتاب الأضاحي','Kurbanlar','Kurbani'],
- 'aqiqah':['كتاب العقيقة','Akika','Akika'],
- 'aqiqa':['كتاب العقيقة','Akika','Akika'],
- 'provisions':['كتاب النفقات','Nafaka','Izdržavanje'],
- 'maintenance':['كتاب النفقات','Nafaka','Izdržavanje'],
- 'partnership':['كتاب الشركة','Ortaklık','Partnerstvo'],
- 'guarantees':['كتاب الكفالة','Kefalet','Jemstvo'],
- 'debt transfer':['كتاب الحوالات','Havale','Prijenos duga'],
- 'mortgaging':['كتاب الرهن','Rehin','Zalog'],
- 'mortgage':['كتاب الرهن','Rehin','Zalog'],
- 'lost things':['كتاب اللقطة','Buluntu Eşya','Izgubljene stvari'],
- 'findings':['كتاب اللقطة','Buluntu Eşya','Nađene stvari'],
- 'one fifth of booty':['كتاب فرض الخمس','Humus','Petina ratnog plijena'],
- 'booty':['كتاب المغازي','Ganimet','Ratni plijen'],
- 'expeditions':['كتاب المغازي','Gazveler','Vojni pohodi'],
- 'military expeditions':['كتاب المغازي','Gazveler','Vojni pohodi'],
- 'obligatory charity tax':['كتاب الزكاة','Zekât','Zekat'],
- 'obligatory charity':['كتاب الزكاة','Zekât','Zekat']
-};
+const CHAPTER_GLOSSARY=readerContent["chapter-glossary"];
 // Arapski nazivi prema redoslijedu poglavlja: https://sunnah.com/muslim
 const MUSLIM_ARABIC_CHAPTERS=["المقدمة", "كتاب الإيمان", "كتاب الطهارة", "كتاب الحيض", "كتاب الصلاة", "كتاب الْمَسَاجِدِ وَمَوَاضِعِ الصَّلاَةِ", "كتاب صلاة المسافرين وقصرها", "كتاب الجمعة", "كتاب صلاة العيدين", "كتاب صلاة الاستسقاء‏", "كتاب الكسوف", "كتاب الجنائز", "كتاب الزكاة", "كتاب الصيام", "كتاب الاعتكاف", "كتاب الحج", "كتاب النكاح", "كتاب الرضاع", "كتاب الطلاق", "كتاب اللعان", "كتاب العتق", "كتاب البيوع", "كتاب المساقاة", "كتاب الفرائض", "كتاب الهبات", "كتاب الوصية", "كتاب النذر", "كتاب الأيمان", "كتاب القسامة والمحاربين والقصاص والديات", "كتاب الحدود", "كتاب الأقضية", "كتاب اللقطة", "كتاب الجهاد والسير", "كتاب الإمارة", "كتاب الصيد والذبائح وما يؤكل من الحيوان", "كتاب الأضاحى", "كتاب الأشربة", "كتاب اللباس والزينة", "كتاب الآداب", "كتاب السلام", "كتاب الألفاظ من الأدب وغيرها", "كتاب الشعر", "كتاب الرؤيا", "كتاب الفضائل", "كتاب فضائل الصحابة رضى الله تعالى عنهم", "كتاب البر والصلة والآداب", "كتاب القدر", "كتاب العلم", "كتاب الذكر والدعاء والتوبة والاستغفار", "كتاب الرقاق", "كتاب التوبة", "كتاب صفات المنافقين وأحكامهم", "كتاب صفة القيامة والجنة والنار", "كتاب الجنة وصفة نعيمها وأهلها", "كتاب الفتن وأشراط الساعة", "كتاب الزهد والرقائق", "كتاب التفسير"];
 function englishKey(s){return String(s||'').normalize('NFKD').toLowerCase().replace(/\([^)]*\)/g,' ').replace(/[’‘'"`]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
@@ -238,7 +111,7 @@ function sync(){num.max=String(max());num.value=String(state.number);const finde
 function jump(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>max()){msg('Unesi broj hadisa od 1 do '+max()+'.');sync();return}
  state.number=n;sync();render()}
 function move(delta){jump(Math.max(1,Math.min(max(),state.number+delta)))}
-async function fetchJson(url){let last;for(const u of [url+'.min.json',url+'.json']){try{const r=await fetch(u);if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}catch(e){last=e}}throw last}
+async function fetchJson(url){let last;for(const u of [url+'.min.json',url+'.json']){try{return await RomanoData.externalJSON(u)}catch(e){last=e}}throw last}
 function sectionItems(raw){
  const metadata=raw?.metadata||{};const names=metadata.sections||{};
  const details=metadata.section_details||metadata.sectionDetails||{};
@@ -304,13 +177,34 @@ async function render(){sync();const {book,number,lang}=state;const token=[book,
  credit.textContent='Autor: Huseini Halil Ibn Ramadan — Romano Islam';
  if(number>10){$('hj-lock').hidden=false;content.hidden=true;msg('Hadis '+number+' od '+max()+' je zaključan u probnoj verziji.');return}
  $('hj-lock').hidden=true;content.hidden=false;
- if(lang==='bos'){const translation=window.HADISJA_BOSANSKI?.[book+':'+number];setText(translation||'Bosanski prijevod za ovaj hadis još nije unesen.',lang);msg(translation?'Autorski bosanski prijevod':'Bosanski prijevod u pripremi');return}
+ if(lang==='bos'){
+  setText('Učitavanje…',lang);
+  try{
+   const row=(await bosnianEdition(book)).find(item=>item.hadithnumber===number);
+   if(token!==[state.book,state.number,state.lang].join('|'))return;
+   setText(row?.text||'Bosanski prijevod za ovaj hadis još nije unesen.',lang);
+   msg(row?'Autorski bosanski prijevod':'Bosanski prijevod u pripremi');
+  }catch{
+   if(token!==[state.book,state.number,state.lang].join('|'))return;
+   setText('Prijevod nije dostupan bez prethodnog učitavanja.',lang);
+  }
+  return;
+ }
  setText('Učitavanje…','eng');msg('Učitavanje hadisa '+number+'…');
  try{const result=await load(lang,book,number);if(token!==[state.book,state.number,state.lang].join('|'))return;
  setText(result.text,lang);msg(friendly()+' · Hadis '+result.number+' / '+max())}
  catch(e){if(token!==[state.book,state.number,state.lang].join('|'))return;setText('Tekst trenutno nije dostupan. Pokušajte ponovo.', 'eng');msg('Greška učitavanja; provjeri vezu ili dostupnost prijevoda.')}
 }
-sel.addEventListener('change',()=>{state.book=sel.value;state.number=1;sync();render();loadIndex(state.book);loadChapters(state.lang,state.book)});
+sel.addEventListener('change',()=>{
+ if(sel.value.startsWith('library:')){
+  const target=new URL('taberi/historija.html',document.baseURI);
+  target.searchParams.set('section','hadisja');
+  target.searchParams.set('book',sel.value.slice(8));
+  target.hash='historija';
+  location.assign(target);
+  return;
+ }
+ state.book=sel.value;state.number=1;sync();render();loadIndex(state.book);loadChapters(state.lang,state.book)});
 $('hj-back').addEventListener('click',()=>move(-1));$('hj-next').addEventListener('click',()=>move(1));
 const finder=$('hj-find-number');function findNumber(){jump(finder.value)}
 $('hj-find-button')?.addEventListener('click',findNumber);finder?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();findNumber()}});
@@ -339,11 +233,7 @@ const normalizeWords=(s)=>String(s??'').normalize('NFKC')
   .replace(/\s+/g,' ').trim();
 async function getSearchEdition(book,lang) {
  const id=lang+'-'+book;
- if(lang==='bos'){
-   return Object.entries(window.HADISJA_BOSANSKI||{})
-     .filter(([key,value])=>key.startsWith(book+':')&&typeof value==='string')
-     .map(([key,text])=>({hadithnumber:Number(key.slice(book.length+1)),text}));
- }
+ if(lang==='bos')return await bosnianEdition(book);
  if(editionsCache.has(id))return editionsCache.get(id);
  const raw=await fetchJson(BASE+id);
  if(!Array.isArray(raw.hadiths))throw new Error('Nema tekstova u izdanju');
