@@ -4,18 +4,18 @@
   "section": "curani",
   "kind": "page-content",
   "title": "Čitin o Kur’ani",
-  "updatedAt": "2026-11-20",
+  "updatedAt": "2026-11-21",
   "texts": {},
   "datasets": {
     "sadrzaj": {
       "1": {
-        "1": "Ano anav e Allahesoro,Milostivo hem ,Milosrdno!",
-        "2": "Hvala e Allahese, o Gospodari e Svetongoro,",
-        "3": "Milostivo ,hem ,Milosrdno",
-        "4": "Vladari e sudnjo Divesero!",
-        "5": "Tut obožavina hem tutar Pomoč roda.",
+        "1": "Ano anav e Allahesoro, Milosno Milosrdno!",
+        "2": "Hvala e Allahese, o Gospodari e Svetongoro",
+        "3": "Milostivo\nMilosrdno",
+        "4": "O Vladari e Sudnje Divesoro!",
+        "5": "Tut obožavina hem Tutar pomoč roda.",
         "6": "Uputin amen ko drumo pravo",
-        "7": "Ko drumo okolendar kas blagodat dinđan,a na ko okola so upra lende i srdžba,niti ko okola soj Zalutime"
+        "7": "Ko drumo okolendar kase Rahmeti dindžan, a na ko okola so upra lende i srdžba, niti ko okola soj zalutime."
       },
       "2": {
         "1": "Alif.Lam. Mim.",
@@ -34,6 +34,109 @@
         "14": "Hem keda arakhena okolen so veruinena, vačerena: „Veruinaja!“ — a ked ačhovena korkore pumare šejtanenca, vačerena: „Čačipase, amen tumenca ijam , amen samo maraja muj .“",
         "15": "O Allah marela muj olencar hem mukhela len ano pumaro preteriba te zalutinen."
       }
+    },
+    "objasnjenja-fatihe": {
+      "1:1": [
+        {
+          "text": "Ano anav e Allahesoro, "
+        },
+        {
+          "text": "Milosno",
+          "note": "Rahmani"
+        },
+        {
+          "text": " "
+        },
+        {
+          "text": "Milosrdno!",
+          "note": "Rahim"
+        }
+      ],
+      "1:2": [
+        {
+          "text": "Hvala",
+          "note": "Elhamdulillah"
+        },
+        {
+          "text": " e Allahese, o "
+        },
+        {
+          "text": "Gospodari",
+          "note": "Rabbi"
+        },
+        {
+          "text": " e "
+        },
+        {
+          "text": "Svetongoro",
+          "note": "Alimengoro"
+        }
+      ],
+      "1:3": [
+        {
+          "text": "Milostivo",
+          "note": "Rahmani"
+        },
+        {
+          "text": "\n"
+        },
+        {
+          "text": "Milosrdno",
+          "note": "Rahim"
+        }
+      ],
+      "1:4": [
+        {
+          "text": "O "
+        },
+        {
+          "text": "Vladari",
+          "note": "Malik"
+        },
+        {
+          "text": " e Sudnje Divesoro!"
+        }
+      ],
+      "1:5": [
+        {
+          "text": "Tut "
+        },
+        {
+          "text": "obožavina",
+          "note": "manga"
+        },
+        {
+          "text": " hem Tutar "
+        },
+        {
+          "text": "pomoč",
+          "note": "jardmi"
+        },
+        {
+          "text": " roda."
+        }
+      ],
+      "1:6": [
+        {
+          "text": "Uputin amen ko drumo pravo"
+        }
+      ],
+      "1:7": [
+        {
+          "text": "Ko drumo okolendar kase Rahmeti dindžan, a na ko okola so upra lende i "
+        },
+        {
+          "text": "srdžba,",
+          "note": "holji"
+        },
+        {
+          "text": " niti ko okola soj "
+        },
+        {
+          "text": "zalutime.",
+          "note": "Našalde"
+        }
+      ]
     }
   }
 }
