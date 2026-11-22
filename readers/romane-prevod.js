@@ -1,4 +1,5 @@
-// APP: sure -> ajeti -> tačan Romane prijevod. Dopunjavaj samo potvrđeni tekst.
+// Dopunjavaj samo ovaj fajl. Sure -> ajeti -> tačan Romane prijevod.
+// Sačuvani su svi dosadašnji potvrđeni prijevodi.
 window.ROMANE_PREVOD = {
   "1": {
     "1": "Ano anav e Allahesoro,Milostivo hem ,Milosrdno!",
