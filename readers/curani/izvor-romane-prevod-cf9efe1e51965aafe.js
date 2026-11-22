@@ -1,0 +1,1 @@
+﻿window.RI_FATIHA_OBJASNJENJE = ;
