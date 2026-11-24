@@ -109,9 +109,54 @@ public final class MainActivity extends Activity {
             String type = contentType(file);
             String encoding = type.startsWith("text/") || type.startsWith("application/")
                 && !type.equals("application/octet-stream") && !type.equals("application/pdf") ? "UTF-8" : null;
+            if ("readers/curani.html".equals(file)) {
+                return new WebResourceResponse(type, encoding, updatedCurani());
+            }
             return new WebResourceResponse(type, encoding, getAssets().open("romano/" + file));
         } catch (IOException error) {
             return missing();
+        }
+    }
+
+    private synchronized java.io.InputStream updatedCurani() throws IOException {
+        android.util.AtomicFile cache = new android.util.AtomicFile(
+            new java.io.File(getFilesDir(), "curani_updated.html"));
+        javax.net.ssl.HttpsURLConnection connection = null;
+        java.io.FileOutputStream output = null;
+        try {
+            connection = (javax.net.ssl.HttpsURLConnection)
+                new java.net.URL("https://app.romano-islam.de/readers/curani.html").openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(10000);
+            connection.setUseCaches(false);
+            connection.setInstanceFollowRedirects(false);
+            if (connection.getResponseCode() == 200 &&
+                connection.getContentType() != null &&
+                connection.getContentType().startsWith("text/html")) {
+                output = cache.startWrite();
+                try (java.io.InputStream input = connection.getInputStream()) {
+                    byte[] buffer = new byte[16384];
+                    int count;
+                    long total = 0;
+                    while ((count = input.read(buffer)) != -1) {
+                        total += count;
+                        if (total > 33554432L) throw new IOException("File too large");
+                        output.write(buffer, 0, count);
+                    }
+                    if (total == 0) throw new IOException("Empty update");
+                }
+                cache.finishWrite(output);
+                output = null;
+            }
+        } catch (IOException error) {
+            if (output != null) cache.failWrite(output);
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+        try {
+            return cache.openRead();
+        } catch (IOException error) {
+            return getAssets().open("romano/readers/curani.html");
         }
     }
 
