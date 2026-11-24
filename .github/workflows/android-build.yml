@@ -1,0 +1,18 @@
+name: Android AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Prepare Android tools
+        run: bash .github/android/toolchain.sh
+      - name: Build AAB
+        run: bash .github/android/build.sh "$GITHUB_WORKSPACE/ROMANO_ISLAM_1_0_10.aab" 11 1.0.10
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ROMANO_ISLAM_1_0_10
+          path: ROMANO_ISLAM_1_0_10.aab
