@@ -13,6 +13,8 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
       - name: Prepare Android tools
         run: bash .github/android/toolchain.sh
       - name: Build AAB
