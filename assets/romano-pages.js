@@ -55,6 +55,75 @@
     }
   }
 
+function riInstallFontControls(){
+'use strict';
+if(window.riGlobalFontControls)return;
+let config={};try{config=JSON.parse(document.getElementById('ri-module-config')?.textContent||'{}')}catch(e){}
+if(config.route==='listen'||/\/readers\/sun_curani\.html$/i.test(location.pathname))return;
+window.riGlobalFontControls=true;
+let percent=100,queued=false;
+try{const saved=Number(localStorage.getItem('ri-font-test')||100);if(Number.isFinite(saved))percent=Math.max(70,Math.min(200,saved))}catch(e){}
+const documents=new Map(),originals=new WeakMap(),touched=new Set(),frames=new WeakSet();
+const css='.ri-reader-font-controls{flex:none;position:sticky;top:0;z-index:3;display:flex;justify-content:center;gap:8px;align-items:center;padding:10px;background:#112f22;border-bottom:1px solid #b9954d}.ri-reader-font-controls button{min-width:48px;min-height:44px;background:#24452e;border:1px solid #b9954d;border-radius:8px;color:#ead097;font-size:20px}.ri-reader-font-controls output{min-width:55px;text-align:center;font-size:16px}';
+function roots(doc){
+ const all=[...doc.querySelectorAll('.page')].filter(el=>el.id!=='listen');
+ if(all.length)return all.concat([...doc.querySelectorAll('.ri-fatiha-modal,#ri-flight-box,dialog')]);
+ const main=doc.querySelector('main')||doc.getElementById('content')||doc.body;
+ return main?[main]:[];
+}
+function controlsRoot(el){return el.closest?.('.ri-reader-font-controls')}
+function excluded(el){return controlsRoot(el)||el.closest?.('#listen,.drawer,.design-menu,.portal-drawer,.topbar,.ri-reader-font-controls,script,style,noscript')||['SCRIPT','STYLE','SVG','PATH','IMG','AUDIO','SOURCE','IFRAME','HEAD','LINK','META','TITLE'].includes(el.tagName)}
+function allTargets(){
+ const seen=new Set();
+ for(const doc of documents.keys())for(const root of roots(doc))for(const el of [root,...root.querySelectorAll('*')])if(!excluded(el))seen.add(el);
+ return [...seen];
+}
+function refresh(){
+ queued=false;setup();
+ for(const el of touched){const saved=originals.get(el);if(saved){if(saved.value)el.style.setProperty('font-size',saved.value,saved.priority);else el.style.removeProperty('font-size')}}
+ if(percent===100)return;
+ const nodes=allTargets();
+ const sizes=nodes.map(el=>parseFloat(el.ownerDocument.defaultView.getComputedStyle(el).fontSize));
+ nodes.forEach((el,i)=>{if(!Number.isFinite(sizes[i]))return;if(!originals.has(el))originals.set(el,{value:el.style.getPropertyValue('font-size'),priority:el.style.getPropertyPriority('font-size')});touched.add(el);el.style.setProperty('font-size',(sizes[i]*percent/100)+'px','important')});
+}
+function queue(){if(!queued){queued=true;requestAnimationFrame(refresh)}}
+function set(value){percent=Math.max(70,Math.min(200,value));try{localStorage.setItem('ri-font-test',percent)}catch(e){}updateOutputs();refresh()}
+function updateOutputs(){for(const doc of documents.keys())for(const output of doc.querySelectorAll('.ri-reader-font-controls output'))if(output.textContent!==percent+'%')output.textContent=percent+'%'}
+function makeBar(doc,root){
+ if(root.id==='listen'||root.classList.contains('ri-fatiha-modal')||root.querySelector(':scope > .ri-reader-font-controls'))return;
+ const bar=doc.createElement('div');bar.className='ri-reader-font-controls';bar.setAttribute('role','group');bar.setAttribute('aria-label','Veličina slova');
+ for(const [label,title,action]of [['A−','Smanji slova',()=>set(percent-10)],['A','Vrati veličinu slova',()=>set(100)],['A+','Povećaj slova',()=>set(percent+10)]]){const button=doc.createElement('button');button.type='button';button.textContent=label;button.setAttribute('aria-label',title);button.onclick=action;bar.append(button)}
+ const output=doc.createElement('output');output.setAttribute('aria-live','polite');output.textContent=percent+'%';bar.append(output);
+ const strip=root.querySelector(':scope > .reader-strip');if(strip)strip.after(bar);else root.prepend(bar);
+}
+function watchFrame(frame){
+ if(frames.has(frame)||frame.closest('#listen'))return;frames.add(frame);
+ const load=()=>{try{const doc=frame.contentDocument;if(doc?.body&&doc.defaultView&&doc.location.href!=='about:blank'){register(doc,false);queue()}}catch(e){}};
+ frame.addEventListener('load',load);load();
+}
+function register(doc,bars){
+ if(documents.has(doc))return;documents.set(doc,{bars});
+ const style=doc.createElement('style');style.dataset.riGlobalFonts='true';style.textContent=css;(doc.head||doc.documentElement).append(style);
+ const Observer=doc.defaultView.MutationObserver;
+ new Observer(records=>{if(records.some(r=>!controlsRoot(r.target)&&[...r.addedNodes].some(n=>n.nodeType===1||n.nodeType===3)))queue()}).observe(doc.body,{childList:true,subtree:true});
+ doc.addEventListener('click',event=>{if(!controlsRoot(event.target))queue()});
+}
+function setup(){for(const [doc,options]of documents){if(options.bars)for(const root of roots(doc))makeBar(doc,root);for(const frame of doc.querySelectorAll('iframe'))watchFrame(frame)}}
+register(document,true);set(percent);
+window.addEventListener('hashchange',queue);window.addEventListener('resize',queue);
+window.riFontControls={set,getPercent:()=>percent};
+}
+
+
+  function withFontControls(markup) {
+    // One shared font toolbar per page; supersedes the old Quran-only initializer.
+    markup = markup.replace(/<script\b[^>]*id=["']ri-reader-font-controls-script["'][^>]*>[\s\S]*?<\/script>/gi, '');
+    if (markup.includes('id="ri-global-font-controls"')) return markup;
+    const setup = '<script id="ri-global-font-controls">(' + riInstallFontControls.toString() + ')();<\/script>';
+    const closingBody = markup.toLowerCase().lastIndexOf('</body>');
+    return closingBody >= 0 ? markup.slice(0, closingBody) + setup + markup.slice(closingBody) : markup + setup;
+  }
+
   async function render(page) {
     const snapshot = await RomanoData.catalog();
     const available = new Map(snapshot.data.books.filter(entry => entry.kind === 'page-content')
@@ -72,7 +141,7 @@
       if (type === 't') return escapeText(value);
       return escapeJSON(type === 'q' ? JSON.stringify(value) : type === 'm' ? {...map.osnova, ...value} : value);
     });
-    return renderMenu(html, snapshot);
+    return withFontControls(await renderMenu(html, snapshot));
   }
 
   async function expand(source) {
