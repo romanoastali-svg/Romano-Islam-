@@ -26,10 +26,21 @@ public final class MainActivity extends Activity {
     private static final String START = "https://" + APP_HOST + APP_PATH + "index.html";
     private static final int BACKGROUND = 0xff082a25;
     private WebView web;
+    private AppUpdateStore updates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            updates = new AppUpdateStore(new java.io.File(getFilesDir(), "romano-web-updates"), nativeVersionCode());
+            final AppUpdateStore store = updates;
+            new Thread(() -> {
+                try { store.checkForUpdate(MainActivity::openAppUpdate); }
+                catch (IOException error) { android.util.Log.i("RomanoUpdate", "Using saved app version", error); }
+            }, "romano-app-update").start();
+        } catch (IOException error) {
+            android.util.Log.i("RomanoUpdate", "Using bundled app version", error);
+        }
         web = new WebView(this);
         web.setBackgroundColor(BACKGROUND);
         WebSettings settings = web.getSettings();
@@ -109,55 +120,37 @@ public final class MainActivity extends Activity {
             String type = contentType(file);
             String encoding = type.startsWith("text/") || type.startsWith("application/")
                 && !type.equals("application/octet-stream") && !type.equals("application/pdf") ? "UTF-8" : null;
-            if ("readers/curani.html".equals(file)) {
-                return new WebResourceResponse(type, encoding, updatedCurani());
-            }
-            return new WebResourceResponse(type, encoding, getAssets().open("romano/" + file));
+            java.io.InputStream input = updates != null && updates.hasSnapshot()
+                ? updates.open(file) : getAssets().open("romano/" + file);
+            return new WebResourceResponse(type, encoding, 200, "OK",
+                Collections.singletonMap("Cache-Control", "no-store"), input);
         } catch (IOException error) {
             return missing();
         }
     }
 
-    private synchronized java.io.InputStream updatedCurani() throws IOException {
-        android.util.AtomicFile cache = new android.util.AtomicFile(
-            new java.io.File(getFilesDir(), "curani_updated.html"));
-        javax.net.ssl.HttpsURLConnection connection = null;
-        java.io.FileOutputStream output = null;
+    private int nativeVersionCode() {
+        try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; }
+        catch (android.content.pm.PackageManager.NameNotFoundException impossible) { throw new AssertionError(impossible); }
+    }
+
+    private static java.io.InputStream openAppUpdate(String path) throws IOException {
+        if (!"manifest.json".equals(path) && !path.matches("app-[0-9a-f]{64}\\.zip"))
+            throw new IOException("Invalid app update URL");
+        final javax.net.ssl.HttpsURLConnection connection = (javax.net.ssl.HttpsURLConnection)
+            new java.net.URL("https://app.romano-islam.de/app-update/" + path).openConnection();
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(30000);
+        connection.setUseCaches(false);
+        connection.setInstanceFollowRedirects(false);
         try {
-            connection = (javax.net.ssl.HttpsURLConnection)
-                new java.net.URL("https://app.romano-islam.de/readers/curani.html").openConnection();
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
-            connection.setUseCaches(false);
-            connection.setInstanceFollowRedirects(false);
-            if (connection.getResponseCode() == 200 &&
-                connection.getContentType() != null &&
-                connection.getContentType().startsWith("text/html")) {
-                output = cache.startWrite();
-                try (java.io.InputStream input = connection.getInputStream()) {
-                    byte[] buffer = new byte[16384];
-                    int count;
-                    long total = 0;
-                    while ((count = input.read(buffer)) != -1) {
-                        total += count;
-                        if (total > 33554432L) throw new IOException("File too large");
-                        output.write(buffer, 0, count);
-                    }
-                    if (total == 0) throw new IOException("Empty update");
+            if (connection.getResponseCode() != 200) throw new IOException("App update unavailable");
+            return new java.io.FilterInputStream(connection.getInputStream()) {
+                @Override public void close() throws IOException {
+                    try { super.close(); } finally { connection.disconnect(); }
                 }
-                cache.finishWrite(output);
-                output = null;
-            }
-        } catch (IOException error) {
-            if (output != null) cache.failWrite(output);
-        } finally {
-            if (connection != null) connection.disconnect();
-        }
-        try {
-            return cache.openRead();
-        } catch (IOException error) {
-            return getAssets().open("romano/readers/curani.html");
-        }
+            };
+        } catch (IOException error) { connection.disconnect(); throw error; }
     }
 
     private static WebResourceResponse missing() {

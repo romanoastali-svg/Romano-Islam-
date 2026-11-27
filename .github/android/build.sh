@@ -31,7 +31,7 @@ cp "$build/proto/AndroidManifest.xml" "$module/manifest/"
 cp "$build/proto/resources.pb" "$module/"
 cp -r "$build/proto/res" "$module/"
 java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -classpath "$ANDROID_JAR" \
-  -d "$build/classes" "$android/java/de/romanoislam/app/MainActivity.java"
+  -d "$build/classes" "$android/java/de/romanoislam/app/"*.java
 java -m jdk.jartool/sun.tools.jar.Main cf "$build/classes.jar" -C "$build/classes" .
 "$ANDROID_D8" --min-api 24 --lib "$ANDROID_JAR" --output "$module/dex" "$build/classes.jar"
 (cd "$module" && zip -q -r "$build/base.zip" .)

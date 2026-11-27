@@ -26,11 +26,18 @@ jobs:
         with:
           persist-credentials: false
       - uses: actions/configure-pages@v5
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify automatic app updates
+        run: bash .github/app-update/check.sh
       - name: Pripremi web i generiši katalog
         run: |
           mkdir _site
           git archive HEAD | tar -x -C _site --exclude=.github --exclude=tools --exclude='index 1.html'
           python3 .github/data/build_catalog.py _site
+          python3 .github/app-update/build_update.py _site _site/app-update --prepare .github/android/prepare_assets.py --source-home index.html
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -17,6 +17,8 @@ jobs:
           packages: ''
       - name: Prepare Android tools
         run: bash .github/android/toolchain.sh
+      - name: Verify automatic app updates
+        run: bash .github/app-update/check.sh
       - name: Build AAB
         run: bash .github/android/build.sh "$GITHUB_WORKSPACE/ROMANO_ISLAM_1_0_10.aab" 11 1.0.10
       - uses: actions/upload-artifact@v4

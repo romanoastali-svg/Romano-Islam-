@@ -47,6 +47,19 @@ for page in root.rglob("*.html"):
 
 shutil.copytree(assets, root, dirs_exist_ok=True)
 
+# A complete app snapshot must use its own matching catalog/data. Mixing a new
+# internet catalog with older running HTML could refer to missing text slots.
+# This changes only the exported native/snapshot copy, never the public portal.
+data_loader = root / "assets" / "romano-data.js"
+loader = data_loader.read_text(encoding="utf-8")
+remote_mode = "const remoteRoot = native || portal ? new URL('https://app.romano-islam.de/data/') : localRoot;"
+snapshot_mode = "const remoteRoot = portal ? new URL('https://app.romano-islam.de/data/') : localRoot;"
+if remote_mode in loader:
+    loader = loader.replace(remote_mode, snapshot_mode, 1)
+elif snapshot_mode not in loader:
+    raise ValueError("App data loader needs a snapshot-compatible source selector")
+data_loader.write_text(loader, encoding="utf-8")
+
 worker = root / "offline-sw.js"
 script = worker.read_text(encoding="utf-8")
 script = re.sub(r"const CACHE='([^']+)';", r"const CACHE='\1-android-privacy-v2';", script, count=1)
